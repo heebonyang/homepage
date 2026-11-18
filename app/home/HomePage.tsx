@@ -7,13 +7,13 @@ import { useSiteSettings } from "../siteSettings";
 import { BRIDGE_SVG } from "./bridge";
 import Concert from "./Concert";
 import Live from "./Live";
-import News from "./News";
+import Lounge from "./Lounge";
 import OrderForm from "./OrderForm";
 import { DEFAULT_PAGE, imageSrc, usePage } from "./pageContent";
 import "./home.css";
 
 // 홈페이지 한 장 (예전 0집 페이지 heebonmd.web.app 와 합침)
-// 광안대교 밤 그림 + 유튜브 매일 밤 10시 라이브 → 양희본 0집(구매) → 음원 사이트(아티스트 페이지) → 공연(좌석 예매) → 소식 → 문의
+// 광안대교 밤 그림 + 유튜브 라이브 카운트다운 → 양희본 0집(구매) → 음원 사이트 로고 → 공연(좌석 예매) → 라운지(공지·방명록) → 문의
 // 문구는 관리자 '홈페이지 문구', 주문·예매는 '0집 주문'·'공연 예매'에서 관리.
 export default function HomePage() {
   const loaded = usePage();
@@ -40,13 +40,6 @@ export default function HomePage() {
     setOrdering(false);
     document.getElementById("buyBtn")?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
-  const goConcert = () => {
-    if (page.concert.ticketOpen) {
-      setTicketing(true);
-      setTimeout(() => document.getElementById("seatmap")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
-    } else document.getElementById("concert")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   const email = page.links.email || MUSIC_PROFILE.email;
 
   return (
@@ -138,7 +131,7 @@ export default function HomePage() {
 
       <div className="deep">
         <Concert page={page} open={ticketing} setOpen={setTicketing} />
-        <News />
+        <Lounge />
         <footer>
           <div className="wrap foot">
             <div className="foot-lights" aria-hidden />
@@ -154,19 +147,6 @@ export default function HomePage() {
         </footer>
       </div>
 
-      {/* 휴대폰: 화면 아래 고정 바로 바로 구매 · 예매 */}
-      {!ordering && !ticketing && (
-        <nav className="dock" aria-label="바로가기">
-          {!soldOut && (
-            <button type="button" onClick={openOrder}>
-              CD 구매
-            </button>
-          )}
-          <button type="button" onClick={goConcert}>
-            {page.concert.ticketOpen ? "공연 예매" : "공연 안내"}
-          </button>
-        </nav>
-      )}
     </div>
   );
 }
