@@ -74,6 +74,18 @@ export default function HomePage() {
               </svg>
             </a>
           </span>
+          <a
+            className="nav-lounge"
+            href="#lounge"
+            onClick={(e) => {
+              e.preventDefault();
+              history.replaceState(null, "", "#lounge");
+              document.getElementById("lounge")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          >
+            <span className="nav-dot" aria-hidden />
+            라운지
+          </a>
         </header>
         <div className="bridge" dangerouslySetInnerHTML={{ __html: BRIDGE_SVG }} />
         {/* 유튜브 로고를 누르면 바로 채널로. 매일 밤 10시 세로 라이브, 방송 시간에는 ON AIR */}
