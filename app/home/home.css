@@ -252,3 +252,4 @@
 .hb [data-cms]{transition:opacity .35s ease}
 .hb.loading [data-cms]{opacity:0;visibility:hidden}
 .hb .live-cms{display:flex;flex-direction:column;align-items:center;width:100%}
+.hb .credit{opacity:.6;letter-spacing:.02em}

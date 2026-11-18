@@ -205,6 +205,7 @@ export default function HomePage() {
             </div>
             <div className="foot-bottom">
               <span>© {new Date().getFullYear()} 양희본 · Busan, Gwangalli</span>
+              <span className="credit">Designed &amp; built with Claude</span>
             </div>
           </div>
         </footer>
