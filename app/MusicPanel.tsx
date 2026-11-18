@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { MUSIC_PROFILE, type Release, type Team } from "./music";
 import { useMusicData } from "./musicData";
 import AlbumBanner from "./AlbumBanner";
+import VoyageCounter from "./VoyageCounter";
 import RolePill from "./RolePill";
 import AudioPlayer from "./AudioPlayer";
 import { useDemos } from "./demos";
@@ -295,6 +296,8 @@ export default function MusicPanel() {
         <p className="text-stone-500">{settings?.musicTagline}</p>
         {settings && <MusicLinks links={settings.musicLinks} />}
       </div>
+
+      <VoyageCounter />
 
       <AlbumBanner />
 
