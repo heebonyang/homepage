@@ -32,7 +32,7 @@
 .hb .col{display:flex;flex-direction:column;gap:20px}
 .hb .desc{margin:0;font-size:18px;color:var(--sub);max-width:460px}
 .hb .album{background:linear-gradient(to bottom,#FEF7ED 0,#FEF7ED 50%,#FBF6EF 62%,#F5F3F0 75%,#EDF0F4 88%,#E6EDF7 100%)}
-.hb .album .grid2{padding-top:72px;padding-bottom:72px;align-items:center}
+.hb .album .grid2{padding-top:28px;padding-bottom:72px;align-items:center}
 .hb .album .col{gap:18px}
 .hb .buy{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin-top:12px;padding-top:24px;border-top:1px solid var(--line)}
 .hb .price{font-size:18px;font-weight:500}
@@ -175,9 +175,9 @@
 .hb .onair-dot{width:9px;height:9px;border-radius:50%;background:#E5232E;flex:none;animation:hbpulse 1.6s ease-out infinite}
 @keyframes hbpulse{0%{box-shadow:0 0 0 0 rgba(229,35,46,.7)}100%{box-shadow:0 0 0 10px rgba(229,35,46,0)}}
 .hb .listen{background:#E6EDF7}
-.hb .listen .wrap{padding-top:8px;padding-bottom:24px}
-.hb .artist-links{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:20px 36px}
-.hb .artist-links a{display:flex;align-items:center;justify-content:center;padding:6px 10px;color:#15489E;text-decoration:none;font-family:var(--font-gowun),serif;font-size:20px;font-weight:700;opacity:.85;transition:opacity .25s,transform .25s}
+.hb .listen .wrap{padding-top:24px;padding-bottom:40px;display:flex;flex-direction:column;gap:18px}
+.hb .artist-links{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;gap:20px 36px}
+.hb .artist-links a{display:flex;align-items:center;justify-content:center;padding:6px 0;color:#15489E;text-decoration:none;font-family:var(--font-gowun),serif;font-size:20px;font-weight:700;opacity:.85;transition:opacity .25s,transform .25s}
 .hb .artist-links a:hover,.hb .artist-links a:active{opacity:1;transform:translateY(-2px)}
 .hb .artist-links img{height:34px;width:auto;max-width:160px;object-fit:contain;display:block}
 
@@ -197,3 +197,4 @@
 .hb .lounge-panel{background:#FEF7ED;color:var(--text);border-radius:24px;padding:clamp(22px,4vw,44px);box-shadow:0 20px 50px rgba(8,22,60,.25)}
 .hb .lounge-title{margin:4px 0 0;font-size:clamp(28px,4vw,40px);line-height:1.2}
 .hb .lounge a{color:inherit}
+.hb .sec-head{padding-top:64px}

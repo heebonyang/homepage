@@ -85,6 +85,9 @@ export default function HomePage() {
       </div>
 
       <section id="album" className="album">
+        <div className="wrap sec-head">
+          <div className="kicker">CD</div>
+        </div>
         <div className="wrap grid2">
           <div className="cover" style={page.album.coverImage ? { border: "none" } : undefined}>
             {page.album.coverImage ? (
@@ -126,6 +129,7 @@ export default function HomePage() {
       {artistLinks.length > 0 && (
         <section className="listen" aria-label="음원 사이트">
           <div className="wrap">
+            <div className="kicker">STREAMING</div>
                 <ul className="artist-links" aria-label="아티스트 페이지">
                   {artistLinks.map((l) => (
                     <li key={l.url}>
