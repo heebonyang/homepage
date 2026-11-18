@@ -25,3 +25,23 @@ export async function loadLetters(fb: FirebaseServices): Promise<LiveLetter[]> {
 
 export const markLetter = (fb: FirebaseServices, id: string, read: boolean) => setDoc(doc(fb.db, "liveLetters", id), { read }, { merge: true });
 export const deleteLetter = (fb: FirebaseServices, id: string) => deleteDoc(doc(fb.db, "liveLetters", id));
+
+// ── 레파토리 (관리자만): 신청곡 중 들어 보고 연습할 곡을 모아 둠 ─────────────
+//   repertoire/<곡 키> : { title, status, note, createdAt }
+// 곡 키: 띄어쓰기·기호를 빼고 소문자로 ("Day 3 - 양희본" 과 "day3-양희본" 은 같은 곡)
+export type RepStatus = "listen" | "practice" | "ready";
+export const REP_STATUS: Record<RepStatus, string> = { listen: "들어볼 곡", practice: "연습 중", ready: "부를 수 있어요" };
+export type RepSong = { id: string; title: string; status: RepStatus; note: string; createdAt: Timestamp | null };
+
+export const songKey = (title: string) => title.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "").slice(0, 120) || "song";
+
+export async function loadRepertoire(fb: FirebaseServices): Promise<RepSong[]> {
+  const snap = await getDocs(collection(fb.db, "repertoire"));
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<RepSong, "id">) }));
+}
+
+export const addToRepertoire = (fb: FirebaseServices, title: string) =>
+  setDoc(doc(fb.db, "repertoire", songKey(title)), { title: title.trim(), status: "listen", note: "", createdAt: serverTimestamp() }, { merge: true });
+export const updateRepertoire = (fb: FirebaseServices, id: string, data: Partial<Pick<RepSong, "title" | "status" | "note">>) =>
+  setDoc(doc(fb.db, "repertoire", id), data, { merge: true });
+export const deleteRepertoire = (fb: FirebaseServices, id: string) => deleteDoc(doc(fb.db, "repertoire", id));

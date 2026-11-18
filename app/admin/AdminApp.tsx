@@ -14,7 +14,7 @@ import { loadSettings, SETTINGS_DOC, type MusicLink } from "../siteSettings";
 
 type Section = "links" | "album" | "albumPage" | "orders" | "tickets" | "letters" | "guestbook";
 
-const SECTION_LABELS: Record<Section, string> = { links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", letters: "세로 라이브 사연 · 신청곡", guestbook: "방명록" };
+const SECTION_LABELS: Record<Section, string> = { links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", letters: "사연 · 신청곡 · 레파토리", guestbook: "방명록" };
 
 function errorMessage(e: unknown) {
   const code = (e as { code?: string })?.code;

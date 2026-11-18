@@ -203,5 +203,10 @@ service cloud.firestore {
           : request.resource.data.message.size() > 0)
         && request.resource.data.createdAt == request.time;
     }
+
+    // 레파토리: 신청곡 중 들어 보고 연습할 곡 (관리자만 읽고 씀)
+    match /repertoire/{id} {
+      allow read, write: if isAdmin();
+    }
   }
 }
