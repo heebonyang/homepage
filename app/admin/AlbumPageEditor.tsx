@@ -16,15 +16,6 @@ type FieldDef = { path: string; label: string; type?: FieldType; hint?: string }
 
 const GROUPS: { title: string; note?: string; fields: FieldDef[] }[] = [
   {
-    title: "광안대교 문구",
-    note: "맨 위 광안대교 그림 아래 바다 위에 보이는 문구",
-    fields: [
-      { path: "harbor.kicker", label: "작은 문구", hint: "좌표 등" },
-      { path: "harbor.title", label: "큰 문구", type: "area" },
-      { path: "harbor.sub", label: "아래 문장", type: "area" },
-    ],
-  },
-  {
     title: "0집 (맨 위)",
     note: "자켓 · 제목 · 소개 · 가격 · 구매 버튼",
     fields: [
@@ -50,20 +41,8 @@ const GROUPS: { title: string; note?: string; fields: FieldDef[] }[] = [
     ],
   },
   {
-    title: "100일 라이브",
-    fields: [
-      { path: "live.headline", label: "제목", type: "area" },
-      { path: "live.description", label: "설명", type: "area" },
-      { path: "live.startDate", label: "시작일", type: "date" },
-      { path: "live.days", label: "기간", type: "number", hint: "일" },
-      { path: "live.time", label: "방송 시간" },
-      { path: "live.place", label: "장소" },
-    ],
-  },
-  {
     title: "공연",
     fields: [
-      { path: "concert.date", label: "공연 날짜", type: "date", hint: "라이브 항로의 '상륙' 날짜로 쓰여요" },
       { path: "concert.headline", label: "제목", type: "area" },
       { path: "concert.description", label: "설명", type: "area" },
       { path: "concert.venue", label: "장소" },
