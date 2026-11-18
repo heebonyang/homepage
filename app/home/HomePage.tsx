@@ -93,6 +93,16 @@ export default function HomePage() {
             방명록
           </a>
         </header>
+        {/* 현위치: 광안대교 그림 위 왼쪽 */}
+        <div className="wrap here-wrap">
+          <span className="here">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden>
+              <path d="M12 2.5a7 7 0 0 0-7 7c0 5.2 7 12 7 12s7-6.8 7-12a7 7 0 0 0-7-7z" fill="#F5C46B" />
+              <circle cx="12" cy="9.5" r="2.6" fill="#0D1230" />
+            </svg>
+            부산 광안리
+          </span>
+        </div>
         <div className="bridge" dangerouslySetInnerHTML={{ __html: BRIDGE_SVG }} />
         {/* 유튜브 로고를 누르면 바로 채널로. 매일 밤 10시 세로 라이브, 방송 시간에는 ON AIR */}
         <div className="liveline">
@@ -204,7 +214,6 @@ export default function HomePage() {
               <a href={`mailto:${email}`}>{email}</a>
             </div>
             <div className="foot-bottom">
-              <span>© {new Date().getFullYear()} 양희본 · Busan, Gwangalli</span>
               <span className="credit">Designed &amp; built with Claude</span>
             </div>
           </div>
