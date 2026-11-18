@@ -2,18 +2,17 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
-import { addDoc, collection, deleteDoc, doc, serverTimestamp, setDoc } from "firebase/firestore/lite";
+import { deleteDoc, doc, setDoc } from "firebase/firestore/lite";
 import { getFirebase, type FirebaseServices } from "../firebase";
 import OrdersManager from "./OrdersManager";
 import AlbumPageEditor from "./AlbumPageEditor";
 import TicketsManager from "./TicketsManager";
 import { formatDate, HeartIcon, loadGuestbook, type GuestbookEntry } from "../Guestbook";
-import { loadNotices, STATIC_NOTICES, type Notice } from "../notices";
 import { loadSettings, SETTINGS_DOC, type MusicLink } from "../siteSettings";
 
-type Section = "links" | "album" | "albumPage" | "orders" | "tickets" | "notices" | "guestbook";
+type Section = "links" | "album" | "albumPage" | "orders" | "tickets" | "guestbook";
 
-const SECTION_LABELS: Record<Section, string> = { links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", notices: "공지", guestbook: "방명록" };
+const SECTION_LABELS: Record<Section, string> = { links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", guestbook: "방명록" };
 
 function errorMessage(e: unknown) {
   const code = (e as { code?: string })?.code;
@@ -35,77 +34,6 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
-const emptyNotice = (): Notice => ({ title: "", body: "", pinned: false, createdAt: null });
-
-function NoticeEditor({
-  initial,
-  onSave,
-  onCancel,
-}: {
-  initial: Notice;
-  onSave: (n: Notice) => Promise<void>;
-  onCancel: () => void;
-}) {
-  const [draft, setDraft] = useState<Notice>(initial);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setError("");
-    try {
-      await onSave({ ...draft, title: draft.title.trim(), body: draft.body.trim() });
-    } catch (err) {
-      setError(errorMessage(err));
-      setSaving(false);
-    }
-  };
-
-  return (
-    <form onSubmit={submit} className="grid gap-4 rounded-2xl border border-stone-200 bg-white p-6">
-      <Field label="제목">
-        <input
-          id="notice-title"
-          required
-          value={draft.title}
-          onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-          className={inputClass}
-        />
-      </Field>
-      <Field label="내용">
-        <textarea
-          id="notice-body"
-          required
-          rows={6}
-          value={draft.body}
-          onChange={(e) => setDraft({ ...draft, body: e.target.value })}
-          className={inputClass}
-        />
-      </Field>
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          id="notice-pinned"
-          type="checkbox"
-          checked={draft.pinned}
-          onChange={(e) => setDraft({ ...draft, pinned: e.target.checked })}
-        />
-        맨 위에 고정
-      </label>
-      {error && <p className="text-sm text-red-700">{error}</p>}
-      <div className="flex justify-end gap-2">
-        <button type="button" onClick={onCancel} className="px-4 py-2 rounded-full border border-stone-300 text-sm">
-          취소
-        </button>
-        <button type="submit" disabled={saving} className="px-5 py-2 rounded-full bg-stone-900 text-white text-sm disabled:opacity-50">
-          {saving ? "저장 중…" : "저장"}
-        </button>
-      </div>
-    </form>
-  );
-}
-
-// 각 탭 이름 옆에 보이는 한 줄 소개 (예: 일상의 이야기를 노래로 만듭니다.)
 // 0집 CD 남은 수량 / 전체 수량. 사이트에는 숫자가 보이지 않고, 품절 표시와 주문 가능 수량에만 쓰임
 function AlbumStockEditor({ fb }: { fb: FirebaseServices }) {
   const [stock, setStock] = useState<string | null>(null);
@@ -464,23 +392,14 @@ function ConfirmButton({ label, onConfirm }: { label: string; onConfirm: () => P
 function Dashboard({ fb }: { fb: FirebaseServices }) {
   const [section, setSection] = useState<Section>("orders");
   const [guestbook, setGuestbook] = useState<GuestbookEntry[]>([]);
-  const [notices, setNotices] = useState<Notice[]>([]);
-  const [editing, setEditing] = useState<{ kind: "notice"; value: Notice } | null>(null);
   const [notice, setNotice] = useState("");
   const [loadError, setLoadError] = useState(false);
-  // false 면 아직 공지를 관리자 페이지로 옮기기 전 (사이트에 기본 공지가 보이는 중)
-  const [noticesInDb, setNoticesInDb] = useState(true);
 
   const reload = useCallback(async () => {
-    const [entries, noticeList, settings] = await Promise.all([
-      loadGuestbook(),
-      loadNotices({ showStaticWhenEmpty: false }),
-      loadSettings({ fresh: true }),
-    ]);
-    setNoticesInDb(settings.noticesInDb);
-    setLoadError(!noticeList.remote);
+    const entries = await loadGuestbook();
+    // 방명록을 못 불러오면(null) 데이터베이스 연결 문제
+    setLoadError(entries === null);
     setGuestbook(entries ?? []);
-    if (noticeList.remote) setNotices(noticeList.notices);
   }, []);
 
   useEffect(() => {
@@ -488,41 +407,8 @@ function Dashboard({ fb }: { fb: FirebaseServices }) {
   }, [reload]);
 
   const done = async (message: string) => {
-    setEditing(null);
     setNotice(message);
     await reload();
-  };
-
-  // 공지를 한 번이라도 저장하면, 사이트는 그 뒤로 데이터베이스 공지만 보여 줌 (기본 공지가 다시 나타나지 않게)
-  const markNoticesInDb = () => setDoc(doc(fb.db, ...SETTINGS_DOC), { noticesInDb: true }, { merge: true });
-
-  const saveNotice = async (n: Notice) => {
-    await markNoticesInDb();
-    const data = { title: n.title, body: n.body, pinned: n.pinned };
-    // 작성일은 처음 저장할 때만 기록하고, 수정할 때는 그대로 둠
-    if (n.id) await setDoc(doc(fb.db, "notices", n.id), data, { merge: true });
-    else await addDoc(collection(fb.db, "notices"), { ...data, createdAt: serverTimestamp() });
-    await done(`'${n.title}' 공지를 저장했어요.`);
-  };
-
-  // 사이트 코드에 적혀 있던 공지를 데이터베이스로 옮김
-  const importStatic = async () => {
-    try {
-      if (notices.length === 0) {
-        await markNoticesInDb();
-        for (const n of STATIC_NOTICES) {
-          await addDoc(collection(fb.db, "notices"), {
-            title: n.title,
-            body: n.body,
-            pinned: n.pinned,
-            createdAt: n.createdAt ?? serverTimestamp(),
-          });
-        }
-      }
-      await done("기존 공지를 가져왔어요. 이제 관리자 페이지에서 수정할 수 있어요.");
-    } catch (e) {
-      setNotice(errorMessage(e));
-    }
   };
 
   // 방명록 하트: 관리자만 남기고 취소할 수 있음 (firestore.rules 에서 liked 칸만 바꿀 수 있게 막음)
@@ -564,7 +450,6 @@ function Dashboard({ fb }: { fb: FirebaseServices }) {
             aria-selected={section === s}
             onClick={() => {
               setSection(s);
-              setEditing(null);
               setNotice("");
             }}
             className={`px-4 py-1.5 rounded-full ${section === s ? "bg-stone-900 text-white" : "text-stone-500 hover:text-stone-900"}`}
@@ -574,71 +459,7 @@ function Dashboard({ fb }: { fb: FirebaseServices }) {
         ))}
       </div>
 
-      {notices.length === 0 && !noticesInDb && (
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-stone-200 bg-white p-5">
-          <p className="text-sm">
-            지금 사이트에 보이는 공지를 데이터베이스로 옮겨요. 처음 한 번만 하면 돼요.
-          </p>
-          <ConfirmButton label="기존 내용 가져오기" onConfirm={importStatic} />
-        </div>
-      )}
-
       {notice && <p className="mt-6 rounded-lg bg-stone-100 px-4 py-3 text-sm text-stone-700">{notice}</p>}
-
-      {section === "notices" && (
-        <div className="mt-8 grid gap-6">
-          {editing?.kind === "notice" ? (
-            <NoticeEditor
-              key={editing.value.id ?? "new"}
-              initial={editing.value}
-              onSave={saveNotice}
-              onCancel={() => setEditing(null)}
-            />
-          ) : (
-            <button
-              onClick={() => setEditing({ kind: "notice", value: emptyNotice() })}
-              className="w-fit px-5 py-2 rounded-full bg-stone-900 text-white text-sm"
-            >
-              + 새 공지 작성
-            </button>
-          )}
-          <ul className="divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white">
-            {notices.length === 0 && noticesInDb && <li className="p-5 text-stone-500">아직 공지가 없어요.</li>}
-            {notices.length === 0 && !noticesInDb && (
-              <li className="grid gap-3 p-5">
-                <p className="text-sm text-stone-600">
-                  데이터베이스에 공지가 없어서, 지금 라운지에는 사이트에 기본으로 들어 있는 아래 공지가 보이고 있어요. 가져오면 여기서 수정·삭제할 수 있어요.
-                </p>
-                <ul className="list-disc pl-5 text-sm text-stone-900">
-                  {STATIC_NOTICES.map((n) => (
-                    <li key={n.title}>{n.title}</li>
-                  ))}
-                </ul>
-                <span className="w-fit">
-                  <ConfirmButton label="이 공지 가져와서 수정하기" onConfirm={importStatic} />
-                </span>
-              </li>
-            )}
-            {notices.map((n) => (
-              <li key={n.id} className="flex items-center gap-4 p-4">
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-stone-900 truncate">
-                    {n.pinned && <span className="mr-2 text-xs px-2 py-0.5 rounded-full bg-stone-900 text-white">고정</span>}
-                    {n.title}
-                  </p>
-                  <p className="text-sm text-stone-500 tabular-nums">{formatDate(n.createdAt)}</p>
-                </div>
-                <button onClick={() => setEditing({ kind: "notice", value: n })} className="text-sm text-stone-700 hover:underline">
-                  수정
-                </button>
-                <ConfirmButton label="삭제" onConfirm={() => remove("notices", n.id!, `'${n.title}' 공지`)} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-
 
       {section === "links" && <LinksManager fb={fb} />}
 
