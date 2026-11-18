@@ -9,11 +9,11 @@ import AlbumPageEditor from "./AlbumPageEditor";
 import TicketsManager from "./TicketsManager";
 import { formatDate, HeartIcon, loadGuestbook, type GuestbookEntry } from "../Guestbook";
 import { loadNotices, STATIC_NOTICES, type Notice } from "../notices";
-import { loadSettings, SETTINGS_DOC, type MusicLink, type SiteSettings } from "../siteSettings";
+import { loadSettings, SETTINGS_DOC, type MusicLink } from "../siteSettings";
 
-type Section = "headings" | "links" | "album" | "albumPage" | "orders" | "tickets" | "notices" | "guestbook";
+type Section = "links" | "album" | "albumPage" | "orders" | "tickets" | "notices" | "guestbook";
 
-const SECTION_LABELS: Record<Section, string> = { headings: "머리글", links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", notices: "공지", guestbook: "방명록" };
+const SECTION_LABELS: Record<Section, string> = { links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", notices: "공지", guestbook: "방명록" };
 
 function errorMessage(e: unknown) {
   const code = (e as { code?: string })?.code;
@@ -106,71 +106,6 @@ function NoticeEditor({
 }
 
 // 각 탭 이름 옆에 보이는 한 줄 소개 (예: 일상의 이야기를 노래로 만듭니다.)
-function HeadingsEditor({ fb }: { fb: FirebaseServices }) {
-  const [draft, setDraft] = useState<SiteSettings | null>(null);
-  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    loadSettings({ fresh: true }).then(setDraft);
-  }, []);
-
-  if (!draft) return <p className="mt-8 text-stone-400">불러오는 중…</p>;
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("saving");
-    try {
-      await setDoc(
-        doc(fb.db, ...SETTINGS_DOC),
-        { musicTagline: draft.musicTagline.trim(), loungeTagline: draft.loungeTagline.trim() },
-        { merge: true },
-      );
-      setStatus("saved");
-    } catch (err) {
-      setError(errorMessage(err));
-      setStatus("error");
-    }
-  };
-
-  return (
-    <form onSubmit={submit} className="mt-8 grid gap-5 rounded-2xl border border-stone-200 bg-white p-6">
-      <p className="text-sm text-stone-500">각 탭 맨 위, 직업 표시 옆에 보이는 한 줄 소개예요. 비워 두면 표시되지 않아요.</p>
-      <Field label="음악 탭" hint="음악 탭 맨 위 한 줄">
-        <input
-          id="heading-music"
-          value={draft.musicTagline}
-          onChange={(e) => {
-            setDraft({ ...draft, musicTagline: e.target.value });
-            setStatus("idle");
-          }}
-          maxLength={80}
-          className={inputClass}
-        />
-      </Field>
-      <Field label="라운지 탭" hint="라운지 옆">
-        <input
-          id="heading-lounge"
-          value={draft.loungeTagline}
-          onChange={(e) => {
-            setDraft({ ...draft, loungeTagline: e.target.value });
-            setStatus("idle");
-          }}
-          maxLength={80}
-          className={inputClass}
-        />
-      </Field>
-      <div className="flex items-center justify-end gap-4">
-        {status === "saved" && <span className="text-sm text-stone-600">저장했어요. 사이트에 바로 반영돼요.</span>}
-        {status === "error" && <span className="text-sm text-red-700">{error}</span>}
-        <button type="submit" disabled={status === "saving"} className="px-5 py-2 rounded-full bg-stone-900 text-white text-sm disabled:opacity-50">
-          {status === "saving" ? "저장 중…" : "저장"}
-        </button>
-      </div>
-    </form>
-  );
-}
-
 // 0집 CD 남은 수량 / 전체 수량. 사이트에는 숫자가 보이지 않고, 품절 표시와 주문 가능 수량에만 쓰임
 function AlbumStockEditor({ fb }: { fb: FirebaseServices }) {
   const [stock, setStock] = useState<string | null>(null);
@@ -703,7 +638,6 @@ function Dashboard({ fb }: { fb: FirebaseServices }) {
         </div>
       )}
 
-      {section === "headings" && <HeadingsEditor fb={fb} />}
 
 
       {section === "links" && <LinksManager fb={fb} />}

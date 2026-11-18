@@ -79,6 +79,7 @@ export default function HomePage() {
         {/* 유튜브 로고를 누르면 바로 채널로. 매일 밤 10시 세로 라이브, 방송 시간에는 ON AIR */}
         <div className="liveline">
           <div className="wrap">
+            <div className="kicker live-k">LIVE</div>
             <Live live={page.live} />
           </div>
         </div>

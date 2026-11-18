@@ -4,7 +4,7 @@ import { doc, getDoc } from "firebase/firestore/lite";
 import { getFirebase } from "./firebase";
 import { ALBUM0 } from "./shop";
 
-// 관리자 페이지 '머리글'에서 고치는 문구. 데이터베이스에 값이 없으면 아래 기본값을 씀
+// 사이트 설정 (settings/site). 데이터베이스에 값이 없으면 아래 기본값을 씀
 // 음악 탭 머리글 오른쪽에 보이는 바로가기 (관리자 페이지 '링크'에서 관리)
 // logo: PNG 이미지 (data URL). 없으면 이름 글자로 표시
 export type MusicLink = {
@@ -14,8 +14,6 @@ export type MusicLink = {
 };
 
 export type SiteSettings = {
-  musicTagline: string;
-  loungeTagline: string;
   musicLinks: MusicLink[];
   // 0집 CD 남은 수량 / 전체 수량 (관리자 페이지 '0집 CD'에서 관리)
   albumStock: number;
@@ -26,8 +24,6 @@ export type SiteSettings = {
 };
 
 export const DEFAULT_SETTINGS: SiteSettings = {
-  musicTagline: "일상의 이야기를 노래로 만듭니다.",
-  loungeTagline: "소식을 전하고, 이야기를 나누는 곳이에요.",
   // 관리자 페이지에서 한 번도 저장하지 않았을 때 보여주는 기본 링크
   musicLinks: [{ name: "Melon", url: "https://www.melon.com/artist/timeline.htm?artistId=869278" }],
   albumStock: ALBUM0.stock,

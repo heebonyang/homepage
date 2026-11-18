@@ -67,7 +67,6 @@ function Notices() {
 
 export default function Lounge() {
   const [board, setBoard] = useState<Board>("notices");
-  const settings = useSiteSettings();
 
   return (
     // 라운지: 공지 · 방명록. 공연 아래 크림색 판 위에 (관리자 '공지'·'방명록'에서 관리)
@@ -78,7 +77,6 @@ export default function Lounge() {
             <div>
               <div className="kicker">LOUNGE</div>
               <h2 className="serif lounge-title">라운지</h2>
-              {settings?.loungeTagline && <p className="mt-1 text-sm text-stone-500">{settings.loungeTagline}</p>}
             </div>
             <div role="tablist" className="flex gap-1 p-1 rounded-full border border-stone-200 bg-white text-sm">
               {(Object.keys(BOARD_LABELS) as Board[]).map((b) => (
