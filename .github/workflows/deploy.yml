@@ -21,7 +21,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build
+      # 빌드 중 구글 글꼴(next/font)을 잠깐 못 받아 실패하는 일이 가끔 있어서, 실패하면 잠시 뒤 두 번까지 다시 시도
+      - run: npm run build || (sleep 20 && npm run build) || (sleep 60 && npm run build)
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
