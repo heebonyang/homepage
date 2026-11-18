@@ -2,44 +2,18 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
-import { addDoc, collection, deleteDoc, doc, serverTimestamp, setDoc, writeBatch } from "firebase/firestore/lite";
+import { addDoc, collection, deleteDoc, doc, serverTimestamp, setDoc } from "firebase/firestore/lite";
 import { getFirebase, type FirebaseServices } from "../firebase";
-import AudioUpload from "./AudioUpload";
 import OrdersManager from "./OrdersManager";
 import AlbumPageEditor from "./AlbumPageEditor";
 import TicketsManager from "./TicketsManager";
-import { deleteAudio } from "../audioStore";
-import { loadMusic } from "../musicData";
 import { formatDate, HeartIcon, loadGuestbook, type GuestbookEntry } from "../Guestbook";
-import { RELEASES, type Release, type Team } from "../music";
 import { loadNotices, STATIC_NOTICES, type Notice } from "../notices";
 import { loadSettings, SETTINGS_DOC, type MusicLink, type SiteSettings } from "../siteSettings";
 
-type Section = "headings" | "links" | "album" | "albumPage" | "orders" | "tickets" | "releases" | "teams" | "notices" | "guestbook";
+type Section = "headings" | "links" | "album" | "albumPage" | "orders" | "tickets" | "notices" | "guestbook";
 
-const SECTION_LABELS: Record<Section, string> = { headings: "머리글", links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", releases: "음원", teams: "팀 프로젝트", notices: "공지", guestbook: "방명록" };
-
-const RELEASE_TYPES: Release["type"][] = ["싱글", "EP", "정규"];
-
-// Firestore 문서 하나는 1MB까지라서, 커버 이미지는 가로세로 최대 800px JPEG로 줄여서 저장
-const COVER_SIZE = 800;
-
-function resizeImage(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      const scale = Math.min(1, COVER_SIZE / Math.max(img.width, img.height));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(img.src);
-      resolve(canvas.toDataURL("image/jpeg", 0.85));
-    };
-    img.onerror = () => reject(new Error("이미지를 읽지 못했어요."));
-    img.src = URL.createObjectURL(file);
-  });
-}
+const SECTION_LABELS: Record<Section, string> = { headings: "머리글", links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", notices: "공지", guestbook: "방명록" };
 
 function errorMessage(e: unknown) {
   const code = (e as { code?: string })?.code;
@@ -58,300 +32,6 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
       </span>
       {children}
     </label>
-  );
-}
-
-const emptyRelease = (): Release => ({
-  title: "",
-  type: "싱글",
-  date: "",
-  team: "",
-  description: "",
-  tracks: [],
-  links: {},
-});
-
-function ReleaseEditor({
-  fb,
-  initial,
-  teams,
-  onSave,
-  onCancel,
-}: {
-  fb: FirebaseServices;
-  initial: Release;
-  teams: Team[];
-  onSave: (r: Release) => Promise<void>;
-  onCancel: () => void;
-}) {
-  const [draft, setDraft] = useState<Release>(initial);
-  const [tracksText, setTracksText] = useState(initial.tracks.join("\n"));
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  const set = <K extends keyof Release>(key: K, value: Release[K]) => setDraft((d) => ({ ...d, [key]: value }));
-
-  const pickCover = async (file: File | undefined) => {
-    if (!file) return;
-    try {
-      set("cover", await resizeImage(file));
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  };
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!/^\d{4}\.\d{2}\.\d{2}$/.test(draft.date)) {
-      setError("발매일은 2025.05.20 처럼 입력해 주세요.");
-      return;
-    }
-    setSaving(true);
-    setError("");
-    try {
-      await onSave({
-        ...draft,
-        title: draft.title.trim(),
-        tracks: tracksText.split("\n").map((t) => t.trim()).filter(Boolean),
-        // 음원 사이트 링크는 더 쓰지 않음 (예전에 넣어 둔 값도 저장할 때 지움)
-        links: {},
-      });
-    } catch (err) {
-      setError(errorMessage(err));
-      setSaving(false);
-    }
-  };
-
-  return (
-    <form onSubmit={submit} className="grid gap-5 rounded-2xl border border-stone-200 bg-white p-6">
-      <div className="flex items-center gap-4">
-        <div className="w-20 h-20 shrink-0 overflow-hidden rounded-lg bg-stone-100">
-          {draft.cover && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={draft.cover} alt="커버 미리보기" className="w-full h-full object-cover" />
-          )}
-        </div>
-        <div className="grid gap-1 text-sm">
-          <span className="text-stone-600">커버 이미지 <span className="ml-1 text-stone-400">선택 · 없으면 제목으로 표시</span></span>
-          <div className="flex gap-4">
-            <label className="text-stone-900 underline underline-offset-4 cursor-pointer">
-              {draft.cover ? "바꾸기" : "이미지 고르기"}
-              <input
-                id="release-cover"
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={(e) => pickCover(e.target.files?.[0])}
-              />
-            </label>
-            {draft.cover && (
-              <button type="button" onClick={() => set("cover", undefined)} className="text-stone-500 hover:text-red-700">
-                지우기
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid gap-4 min-w-0">
-        <Field label="제목">
-          <input id="release-title" required value={draft.title} onChange={(e) => set("title", e.target.value)} className={inputClass} />
-        </Field>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Field label="종류">
-            <select
-              id="release-type"
-              value={draft.type}
-              onChange={(e) => set("type", e.target.value as Release["type"])}
-              className={inputClass}
-            >
-              {RELEASE_TYPES.map((t) => (
-                <option key={t}>{t}</option>
-              ))}
-            </select>
-          </Field>
-          <Field label="발매일" hint="예: 2025.05.20">
-            <input
-              id="release-date"
-              required
-              value={draft.date}
-              onChange={(e) => set("date", e.target.value)}
-              placeholder="YYYY.MM.DD"
-              className={`${inputClass} tabular-nums`}
-            />
-          </Field>
-          <Field label="구분">
-            <select id="release-team" value={draft.team ?? ""} onChange={(e) => set("team", e.target.value)} className={inputClass}>
-              <option value="">솔로</option>
-              {teams.map((t) => (
-                <option key={t.id} value={t.name}>
-                  팀 · {t.name}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-        <Field label="소개" hint="선택">
-          <textarea
-            id="release-description"
-            rows={2}
-            value={draft.description ?? ""}
-            onChange={(e) => set("description", e.target.value)}
-            className={inputClass}
-          />
-        </Field>
-        <div className="grid gap-1.5 min-w-0">
-          <span className="text-sm text-stone-600">
-            미리듣기 음원 <span className="ml-2 text-stone-400">선택</span>
-          </span>
-          <AudioUpload fb={fb} value={draft.audio ?? ""} onChange={(url) => set("audio", url)} />
-        </div>
-        <Field label="수록곡" hint="한 줄에 한 곡씩">
-          <textarea
-            id="release-tracks"
-            rows={4}
-            value={tracksText}
-            onChange={(e) => setTracksText(e.target.value)}
-            className={inputClass}
-          />
-        </Field>
-
-        {error && <p className="text-sm text-red-700">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <button type="button" onClick={onCancel} className="px-4 py-2 rounded-full border border-stone-300 text-sm">
-            취소
-          </button>
-          <button type="submit" disabled={saving} className="px-5 py-2 rounded-full bg-stone-900 text-white text-sm disabled:opacity-50">
-            {saving ? "저장 중…" : "저장"}
-          </button>
-        </div>
-      </div>
-    </form>
-  );
-}
-
-const emptyTeam = (): Team => ({ name: "", period: "", role: "", description: "" });
-
-function TeamEditor({
-  initial,
-  onSave,
-  onCancel,
-}: {
-  initial: Team;
-  onSave: (t: Team) => Promise<void>;
-  onCancel: () => void;
-}) {
-  const [draft, setDraft] = useState<Team>(initial);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const set = <K extends keyof Team>(key: K, value: Team[K]) => setDraft((d) => ({ ...d, [key]: value }));
-  const [over, setOver] = useState(false);
-
-  const pickImage = async (file: File | undefined) => {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setError("사진 파일만 넣을 수 있어요.");
-      return;
-    }
-    try {
-      setError("");
-      set("image", await resizeImage(file));
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  };
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setError("");
-    try {
-      await onSave({ ...draft, name: draft.name.trim(), period: draft.period.trim(), role: draft.role.trim() });
-    } catch (err) {
-      setError(errorMessage(err));
-      setSaving(false);
-    }
-  };
-
-  return (
-    <form onSubmit={submit} className="grid gap-4 rounded-2xl border border-stone-200 bg-white p-6">
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Field label="팀 이름">
-          <input id="team-name" required value={draft.name} onChange={(e) => set("name", e.target.value)} className={inputClass} />
-        </Field>
-        <Field label="활동 기간" hint="선택 · 예: 2021 – 2023">
-          <input id="team-period" value={draft.period} onChange={(e) => set("period", e.target.value)} className={inputClass} />
-        </Field>
-        <Field label="맡은 역할" hint="선택 · 예: 보컬 · 작곡">
-          <input id="team-role" value={draft.role} onChange={(e) => set("role", e.target.value)} className={inputClass} />
-        </Field>
-      </div>
-      <Field label="소개" hint="선택">
-        <textarea
-          id="team-description"
-          rows={2}
-          value={draft.description ?? ""}
-          onChange={(e) => set("description", e.target.value)}
-          className={inputClass}
-        />
-      </Field>
-      <div className="grid gap-1.5">
-        <span className="text-sm text-stone-600">
-          팀 사진 <span className="ml-2 text-stone-400">선택 · 끌어다 놓거나 눌러서 고르기</span>
-        </span>
-        <div className="flex flex-wrap items-end gap-3">
-          <label
-            onDragOver={(e) => {
-              e.preventDefault();
-              setOver(true);
-            }}
-            onDragLeave={() => setOver(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setOver(false);
-              pickImage(e.dataTransfer.files[0]);
-            }}
-            className={`grid place-items-center w-60 aspect-[4/3] overflow-hidden rounded-xl border-2 border-dashed cursor-pointer text-sm text-stone-500 ${
-              over ? "border-stone-900 bg-stone-100" : "border-stone-300 bg-stone-50 hover:border-stone-500"
-            }`}
-          >
-            {draft.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={draft.image} alt="팀 사진 미리보기" className="w-full h-full object-cover" />
-            ) : (
-              <span>사진을 여기에 끌어다 놓기</span>
-            )}
-            <input
-              id="team-image"
-              type="file"
-              accept="image/*"
-              className="sr-only"
-              onChange={(e) => {
-                pickImage(e.target.files?.[0]);
-                e.target.value = "";
-              }}
-            />
-          </label>
-          {draft.image && (
-            <button type="button" onClick={() => set("image", undefined)} className="text-sm text-stone-500 hover:text-red-700">
-              사진 빼기
-            </button>
-          )}
-        </div>
-      </div>
-      {initial.id && initial.name !== draft.name && (
-        <p className="text-sm text-amber-800">팀 이름을 바꾸면, 이 팀으로 등록된 음원의 구분도 함께 바뀌어요.</p>
-      )}
-      {error && <p className="text-sm text-red-700">{error}</p>}
-      <div className="flex justify-end gap-2">
-        <button type="button" onClick={onCancel} className="px-4 py-2 rounded-full border border-stone-300 text-sm">
-          취소
-        </button>
-        <button type="submit" disabled={saving} className="px-5 py-2 rounded-full bg-stone-900 text-white text-sm disabled:opacity-50">
-          {saving ? "저장 중…" : "저장"}
-        </button>
-      </div>
-    </form>
   );
 }
 
@@ -847,35 +527,23 @@ function ConfirmButton({ label, onConfirm }: { label: string; onConfirm: () => P
 }
 
 function Dashboard({ fb }: { fb: FirebaseServices }) {
-  const [section, setSection] = useState<Section>("releases");
-  const [releases, setReleases] = useState<Release[]>([]);
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [section, setSection] = useState<Section>("orders");
   const [guestbook, setGuestbook] = useState<GuestbookEntry[]>([]);
   const [notices, setNotices] = useState<Notice[]>([]);
-  const [editing, setEditing] = useState<
-    | { kind: "release"; value: Release }
-    | { kind: "team"; value: Team }
-    | { kind: "notice"; value: Notice }
-    | null
-  >(null);
+  const [editing, setEditing] = useState<{ kind: "notice"; value: Notice } | null>(null);
   const [notice, setNotice] = useState("");
   const [loadError, setLoadError] = useState(false);
   // false 면 아직 공지를 관리자 페이지로 옮기기 전 (사이트에 기본 공지가 보이는 중)
   const [noticesInDb, setNoticesInDb] = useState(true);
 
   const reload = useCallback(async () => {
-    const [music, entries, noticeList, settings] = await Promise.all([
-      loadMusic({ showStaticWhenEmpty: false }),
+    const [entries, noticeList, settings] = await Promise.all([
       loadGuestbook(),
       loadNotices({ showStaticWhenEmpty: false }),
       loadSettings({ fresh: true }),
     ]);
     setNoticesInDb(settings.noticesInDb);
-    setLoadError(!music.remote);
-    if (music.remote) {
-      setReleases(music.releases);
-      setTeams(music.teams);
-    }
+    setLoadError(!noticeList.remote);
     setGuestbook(entries ?? []);
     if (noticeList.remote) setNotices(noticeList.notices);
   }, []);
@@ -890,55 +558,6 @@ function Dashboard({ fb }: { fb: FirebaseServices }) {
     await reload();
   };
 
-  const saveRelease = async (r: Release) => {
-    const { id, ...data } = r;
-    if (!data.cover) delete data.cover;
-    if (!data.audio?.trim()) delete data.audio;
-    const oldAudio = id ? releases.find((x) => x.id === id)?.audio : undefined;
-    if (id) await setDoc(doc(fb.db, "releases", id), data);
-    else await addDoc(collection(fb.db, "releases"), data);
-    // 음원 파일을 바꾸거나 뺐으면 예전 파일은 지움 (데이터베이스에 올린 파일만)
-    if (oldAudio && oldAudio !== data.audio) await deleteAudio(fb, oldAudio).catch(() => {});
-    await done(`'${r.title}'을(를) 저장했어요.`);
-  };
-
-  const saveTeam = async (t: Team) => {
-    const { id, ...data } = t;
-    // 데이터베이스는 빈 값(undefined)을 저장하지 못하므로, 사진을 뺐으면 칸 자체를 지움
-    if (!data.image) delete data.image;
-    if (id) {
-      await setDoc(doc(fb.db, "teams", id), data);
-      const oldName = teams.find((x) => x.id === id)?.name;
-      if (oldName && oldName !== t.name) {
-        await Promise.all(
-          releases
-            .filter((r) => r.team === oldName && r.id)
-            .map((r) => setDoc(doc(fb.db, "releases", r.id!), { team: t.name }, { merge: true })),
-        );
-      }
-    } else {
-      await addDoc(collection(fb.db, "teams"), { ...data, order: teams.length });
-    }
-    await done(`'${t.name}' 팀을 저장했어요.`);
-  };
-
-  // 팀 순서 바꾸기: 위/아래 팀과 자리를 바꾸고 모든 팀의 순서 번호를 0부터 다시 매김
-  const moveTeam = async (index: number, delta: -1 | 1) => {
-    const target = index + delta;
-    if (target < 0 || target >= teams.length) return;
-    const next = [...teams];
-    [next[index], next[target]] = [next[target], next[index]];
-    setTeams(next.map((t, i) => ({ ...t, order: i })));
-    try {
-      const batch = writeBatch(fb.db);
-      next.forEach((t, i) => batch.set(doc(fb.db, "teams", t.id!), { order: i }, { merge: true }));
-      await batch.commit();
-    } catch (e) {
-      setNotice(errorMessage(e));
-      await reload();
-    }
-  };
-
   // 공지를 한 번이라도 저장하면, 사이트는 그 뒤로 데이터베이스 공지만 보여 줌 (기본 공지가 다시 나타나지 않게)
   const markNoticesInDb = () => setDoc(doc(fb.db, ...SETTINGS_DOC), { noticesInDb: true }, { merge: true });
 
@@ -951,15 +570,9 @@ function Dashboard({ fb }: { fb: FirebaseServices }) {
     await done(`'${n.title}' 공지를 저장했어요.`);
   };
 
-  // 사이트 코드에 적혀 있던 실제 음원(예시 제외)과 공지를 데이터베이스로 옮김
+  // 사이트 코드에 적혀 있던 공지를 데이터베이스로 옮김
   const importStatic = async () => {
     try {
-      if (releases.length === 0) {
-        for (const r of RELEASES.filter((x) => !x.example)) {
-          const { id: _id, example: _example, ...data } = r;
-          await addDoc(collection(fb.db, "releases"), data);
-        }
-      }
       if (notices.length === 0) {
         await markNoticesInDb();
         for (const n of STATIC_NOTICES) {
@@ -971,7 +584,7 @@ function Dashboard({ fb }: { fb: FirebaseServices }) {
           });
         }
       }
-      await done("기존 음원과 공지를 가져왔어요. 이제 관리자 페이지에서 수정할 수 있어요.");
+      await done("기존 공지를 가져왔어요. 이제 관리자 페이지에서 수정할 수 있어요.");
     } catch (e) {
       setNotice(errorMessage(e));
     }
@@ -1026,120 +639,16 @@ function Dashboard({ fb }: { fb: FirebaseServices }) {
         ))}
       </div>
 
-      {(releases.length === 0 || (notices.length === 0 && !noticesInDb)) && (
+      {notices.length === 0 && !noticesInDb && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-stone-200 bg-white p-5">
           <p className="text-sm">
-            지금 사이트에 보이는 음원(Day 3, 내 남은 초록을 모두 그대에게)과 공지를 데이터베이스로 옮겨요. 처음 한 번만 하면 돼요.
+            지금 사이트에 보이는 공지를 데이터베이스로 옮겨요. 처음 한 번만 하면 돼요.
           </p>
           <ConfirmButton label="기존 내용 가져오기" onConfirm={importStatic} />
         </div>
       )}
 
       {notice && <p className="mt-6 rounded-lg bg-stone-100 px-4 py-3 text-sm text-stone-700">{notice}</p>}
-
-      {section === "releases" && (
-        <div className="mt-8 grid gap-6">
-          {editing?.kind === "release" ? (
-            <ReleaseEditor
-              fb={fb}
-              key={editing.value.id ?? "new"}
-              initial={editing.value}
-              teams={teams}
-              onSave={saveRelease}
-              onCancel={() => setEditing(null)}
-            />
-          ) : (
-            <button
-              onClick={() => setEditing({ kind: "release", value: emptyRelease() })}
-              className="w-fit px-5 py-2 rounded-full bg-stone-900 text-white text-sm"
-            >
-              + 새 음원 추가
-            </button>
-          )}
-          <ul className="divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white">
-            {releases.length === 0 && <li className="p-5 text-stone-500">아직 등록된 음원이 없어요.</li>}
-            {releases.map((r) => (
-              <li key={r.id} className="flex items-center gap-4 p-4">
-                <div className="w-12 h-12 shrink-0 overflow-hidden rounded-md bg-stone-100">
-                  {r.cover && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={r.cover} alt="" className="w-full h-full object-cover" />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-stone-900 truncate">{r.title}</p>
-                  <p className="text-sm text-stone-500 tabular-nums">
-                    {r.team ? `팀 · ${r.team}` : "솔로"} · {r.type} · {r.date}
-                  </p>
-                </div>
-                <button onClick={() => setEditing({ kind: "release", value: r })} className="text-sm text-stone-700 hover:underline">
-                  수정
-                </button>
-                <ConfirmButton
-                  label="삭제"
-                  onConfirm={async () => {
-                    await remove("releases", r.id!, `'${r.title}'`);
-                    await deleteAudio(fb, r.audio).catch(() => {});
-                  }}
-                />
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {section === "teams" && (
-        <div className="mt-8 grid gap-6">
-          {editing?.kind === "team" ? (
-            <TeamEditor key={editing.value.id ?? "new"} initial={editing.value} onSave={saveTeam} onCancel={() => setEditing(null)} />
-          ) : (
-            <button
-              onClick={() => setEditing({ kind: "team", value: emptyTeam() })}
-              className="w-fit px-5 py-2 rounded-full bg-stone-900 text-white text-sm"
-            >
-              + 새 팀 추가
-            </button>
-          )}
-          <ul className="divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white">
-            {teams.length === 0 && <li className="p-5 text-stone-500">아직 등록된 팀이 없어요.</li>}
-            {teams.map((t, i) => (
-              <li key={t.id} className="flex items-center gap-4 p-4">
-                <div className="flex flex-col">
-                  <button
-                    onClick={() => moveTeam(i, -1)}
-                    disabled={i === 0}
-                    aria-label={`${t.name} 위로`}
-                    className="px-2 text-stone-500 hover:text-stone-900 disabled:opacity-25"
-                  >
-                    ▲
-                  </button>
-                  <button
-                    onClick={() => moveTeam(i, 1)}
-                    disabled={i === teams.length - 1}
-                    aria-label={`${t.name} 아래로`}
-                    className="px-2 text-stone-500 hover:text-stone-900 disabled:opacity-25"
-                  >
-                    ▼
-                  </button>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-stone-900">{t.name}</p>
-                  <p className="text-sm text-stone-500 tabular-nums">
-                    {[t.period, t.role, `음원 ${releases.filter((r) => r.team === t.name).length}개`].filter(Boolean).join(" · ")}
-                  </p>
-                </div>
-                <button onClick={() => setEditing({ kind: "team", value: t })} className="text-sm text-stone-700 hover:underline">
-                  수정
-                </button>
-                <ConfirmButton label="삭제" onConfirm={() => remove("teams", t.id!, `'${t.name}' 팀`)} />
-              </li>
-            ))}
-          </ul>
-          <p className="text-sm text-stone-500">
-            ▲ ▼로 순서를 바꾸면 음악 탭에도 같은 순서로 보여요. 팀을 삭제해도 그 팀으로 등록된 음원은 지워지지 않아요.
-          </p>
-        </div>
-      )}
 
       {section === "notices" && (
         <div className="mt-8 grid gap-6">

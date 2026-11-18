@@ -2,23 +2,23 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAlbumStock } from "../LimitedStock";
-import { MUSIC_PROFILE } from "../music";
-import { SOCIAL } from "../SocialLinks";
+import { MUSIC_PROFILE, YOUTUBE_URL } from "../music";
+import { useSiteSettings } from "../siteSettings";
 import { BRIDGE_SVG } from "./bridge";
 import Concert from "./Concert";
-import Music from "./Music";
 import News from "./News";
 import OrderForm from "./OrderForm";
 import { DEFAULT_PAGE, imageSrc, isOnAir, usePage } from "./pageContent";
 import "./home.css";
 
 // 홈페이지 한 장 (예전 0집 페이지 heebonmd.web.app 와 합침)
-// 광안대교 밤 그림 + 오늘의 세로 라이브 → 양희본 0집(구매) → 발매곡 → 공연(좌석 예매) → 소식 → 문의
+// 광안대교 밤 그림 + 유튜브 매일 밤 10시 라이브 + 아티스트 페이지 → 양희본 0집(구매) → 공연(좌석 예매) → 소식 → 문의
 // 문구는 관리자 '홈페이지 문구', 주문·예매는 '0집 주문'·'공연 예매'에서 관리.
 export default function HomePage() {
   const loaded = usePage();
   const page = loaded ?? DEFAULT_PAGE;
   const stock = useAlbumStock();
+  const artistLinks = (useSiteSettings()?.musicLinks ?? []).filter((l) => l.url);
   const soldOut = stock !== null && stock.stock <= 0;
   const [ordering, setOrdering] = useState(false);
   const [ticketing, setTicketing] = useState(false);
@@ -74,34 +74,46 @@ export default function HomePage() {
             <span className="ko">양희본</span>
             <span className="en">Heebon Yang</span>
           </Link>
-          <span className="sns">
-            <a href={SOCIAL.youtube} target="_blank" rel="noopener" aria-label="YouTube에서 보기" title="YouTube" className="yt">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>
-                <rect x="2" y="5" width="20" height="14" rx="4" fill="currentColor" />
-                <path d="M10 9l5 3-5 3z" fill="#0D1230" />
-              </svg>
-            </a>
-            <a href={SOCIAL.instagram} target="_blank" rel="noopener" aria-label="Instagram에서 보기" title="Instagram" className="ig">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-                <rect x="3" y="3" width="18" height="18" rx="5" />
-                <circle cx="12" cy="12" r="4" />
-                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-              </svg>
-            </a>
-          </span>
         </header>
         <div className="bridge" dangerouslySetInnerHTML={{ __html: BRIDGE_SVG }} />
-        {/* 오늘의 세로 라이브: 방송 시간에는 ON AIR */}
+        {/* 유튜브 로고를 누르면 바로 채널로. 매일 밤 10시 세로 라이브, 방송 시간에는 ON AIR */}
         <div className="liveline">
           <div className="wrap">
-            <span className={`onair${onAir ? " on" : ""}`}>
-              <i aria-hidden />
-              {onAir ? "ON AIR" : "LIVE"}
-            </span>
-            <span className="live-label">{onAir ? "지금 유튜브에서 세로 라이브 중이에요" : page.live.label}</span>
-            <a className="live-go" href={SOCIAL.youtube} target="_blank" rel="noopener">
-              {onAir ? "지금 보기" : "유튜브 채널"} <span aria-hidden>↗</span>
+            <a className={`ytlive${onAir ? " on" : ""}`} href={YOUTUBE_URL} target="_blank" rel="noopener" aria-label="유튜브 양희본 채널 열기">
+              <svg className="ytlogo" viewBox="0 0 28 20" aria-hidden>
+                <rect width="28" height="20" rx="5.6" fill="#FF0000" />
+                <path d="M11.2 5.7v8.6l7.4-4.3z" fill="#fff" />
+              </svg>
+              <span className="yt-text">
+                <span className="yt-when">
+                  {onAir ? "지금 라이브 중" : (
+                    <>
+                      매일 밤 <b>10시</b> 라이브
+                    </>
+                  )}
+                </span>
+                <span className={`onair${onAir ? " on" : ""}`}>
+                  <i aria-hidden />
+                  {onAir ? "ON AIR" : "YouTube LIVE"}
+                </span>
+              </span>
             </a>
+            {artistLinks.length > 0 && (
+              <ul className="artist-links" aria-label="아티스트 페이지">
+                {artistLinks.map((l) => (
+                  <li key={l.url}>
+                    <a href={l.url} target="_blank" rel="noopener" aria-label={`${l.name} 아티스트 페이지`} title={l.name}>
+                      {l.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={l.logo} alt={l.name} />
+                      ) : (
+                        <span>{l.name}</span>
+                      )}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>
@@ -144,8 +156,6 @@ export default function HomePage() {
           </div>
         </section>
       )}
-
-      <Music />
 
       <div className="deep">
         <Concert page={page} open={ticketing} setOpen={setTicketing} />

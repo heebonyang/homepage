@@ -13,11 +13,6 @@
 .hb .brand .ko{font-size:16px;font-weight:700;letter-spacing:.04em}
 .hb .brand .en{font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
 .hb .brand:hover{color:#fff}
-.hb .sns{display:flex;align-items:center}
-.hb .sns a{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;color:#DCE5F4;transition:color .2s,background .2s}
-.hb .sns a:hover{background:rgba(254,247,237,.1)}
-.hb .sns a.yt:hover{color:#ff0000}
-.hb .sns a.ig:hover{color:#ff5fa8}
 .hb .album h1{margin:0;font-weight:700;font-size:clamp(52px,7vw,96px);line-height:1.05;letter-spacing:-.02em}
 .hb .album h1 .acc{color:var(--accent)}
 .hb .lead{margin:0;font-size:19px;color:var(--text)}
@@ -156,30 +151,26 @@
 .hb .btn{border:0;cursor:pointer;font-family:inherit}
 .hb .btn.line{border:1px solid var(--accent)}
 /* 오늘의 세로 라이브 (광안대교 아래 밤바다 위) */
-.hb .liveline{background:#0A0E26;padding:6px 0 30px}
-.hb .liveline .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;color:#DCE5F4;font-size:15px}
-.hb .onair{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;border:1px solid rgba(254,247,237,.35);font-size:12px;font-weight:700;letter-spacing:.2em;color:#DCE5F4}
-.hb .onair i{width:8px;height:8px;border-radius:50%;background:#8F9AC0}
-.hb .onair.on{border-color:#F06BC8;color:#fff;background:rgba(240,107,200,.18)}
-.hb .onair.on i{background:#F06BC8;box-shadow:0 0 0 0 rgba(240,107,200,.7);animation:hbpulse 1.6s ease-out infinite}
-@keyframes hbpulse{0%{box-shadow:0 0 0 0 rgba(240,107,200,.7)}100%{box-shadow:0 0 0 10px rgba(240,107,200,0)}}
-.hb .live-label{flex:1 1 220px}
-.hb .live-go{color:#FEF7ED;text-decoration:none;font-weight:500;border-bottom:1px solid rgba(254,247,237,.4);padding-bottom:1px}
-.hb .live-go:hover{border-color:#FEF7ED}
-/* 발매곡 */
-.hb .music{background:#E6EDF7}
-.hb .music .wrap{padding-top:16px;padding-bottom:40px;display:flex;flex-direction:column;gap:14px}
-.hb .music h2{font-size:clamp(28px,3.4vw,36px)}
-.hb .releases{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px 24px;margin-top:6px}
-.hb .release{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid rgba(21,72,158,.15);min-height:76px}
-.hb .release.loading{background:linear-gradient(90deg,rgba(21,72,158,.06),rgba(21,72,158,.12),rgba(21,72,158,.06));border-radius:4px;border:0}
-.hb .rel-cover{width:56px;height:56px;border-radius:4px;object-fit:cover;flex:none;background:#15489E}
-.hb .rel-blank{display:grid;place-items:center;color:#FEF7ED;font-family:var(--font-gowun),serif;font-size:22px;font-weight:700}
-.hb .rel-text{display:flex;flex-direction:column;min-width:0;flex:1}
-.hb .rel-text b{font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hb .rel-text small{font-size:13px;color:var(--muted)}
-.hb .play{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--accent);background:transparent;color:var(--accent);display:grid;place-items:center;cursor:pointer}
-.hb .play:hover,.hb .play.on{background:var(--accent);color:#FEF7ED}
+.hb .liveline{background:#0A0E26;padding:10px 0 44px}
+.hb .liveline .wrap{display:flex;flex-direction:column;align-items:center;gap:26px;color:#DCE5F4}
+.hb .ytlive{display:flex;align-items:center;gap:22px;text-decoration:none;color:#FEF7ED;padding:18px 30px 18px 22px;border-radius:28px;background:rgba(254,247,237,.05);border:1px solid rgba(254,247,237,.14);transition:transform .2s,background .2s,border-color .2s}
+.hb .ytlive:hover{transform:translateY(-2px);background:rgba(254,247,237,.09);border-color:rgba(255,0,0,.55)}
+.hb .ytlogo{width:clamp(88px,14vw,120px);height:auto;flex:none;filter:drop-shadow(0 8px 24px rgba(255,0,0,.35))}
+.hb .ytlive.on .ytlogo{animation:hbglow 1.6s ease-in-out infinite}
+@keyframes hbglow{50%{filter:drop-shadow(0 8px 34px rgba(255,0,0,.75))}}
+.hb .yt-text{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.hb .yt-when{font-family:var(--font-gowun),serif;font-size:clamp(24px,4vw,36px);font-weight:700;line-height:1.2;letter-spacing:-.01em;white-space:nowrap}
+.hb .yt-when b{color:#FF4D4D}
+.hb .onair{display:inline-flex;align-items:center;gap:8px;padding:4px 12px;border-radius:999px;border:1px solid rgba(254,247,237,.35);font-size:12px;font-weight:700;letter-spacing:.16em;color:#DCE5F4}
+.hb .onair i{width:8px;height:8px;border-radius:50%;background:#FF4D4D}
+.hb .onair.on{border-color:#FF4D4D;color:#fff;background:rgba(255,0,0,.2)}
+.hb .onair.on i{box-shadow:0 0 0 0 rgba(255,77,77,.7);animation:hbpulse 1.6s ease-out infinite}
+@keyframes hbpulse{0%{box-shadow:0 0 0 0 rgba(255,77,77,.7)}100%{box-shadow:0 0 0 10px rgba(255,77,77,0)}}
+.hb .artist-links{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.hb .artist-links a{display:flex;align-items:center;justify-content:center;height:56px;min-width:140px;padding:0 24px;border-radius:999px;background:#FEF7ED;color:#0D1230;text-decoration:none;font-weight:700;font-size:17px;letter-spacing:.02em;transition:transform .2s,box-shadow .2s}
+.hb .artist-links a:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.35)}
+.hb .artist-links img{height:26px;width:auto;display:block}
+@media (max-width:520px){.hb .ytlive{gap:16px;padding:14px 20px 14px 16px}.hb .artist-links a{height:52px;min-width:120px}}
 /* 소식 (파란 바탕) */
 .hb .news{--line:rgba(254,247,237,.3);color:#FEF7ED}
 .hb .news .wrap{padding-bottom:64px;display:flex;flex-direction:column;gap:14px;max-width:1120px}
