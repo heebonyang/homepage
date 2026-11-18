@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAlbumStock } from "../LimitedStock";
 import { INSTAGRAM_URL, MUSIC_PROFILE, YOUTUBE_URL } from "../music";
+import { recordClick } from "../linkClicks";
 import { useSiteSettings } from "../siteSettings";
 import { BRIDGE_SVG } from "./bridge";
 import Concert from "./Concert";
@@ -148,10 +149,14 @@ export default function HomePage() {
         <section className="listen" aria-label="음원 사이트">
           <div className="wrap">
             <div className="kicker">STREAMING</div>
+            {/* 대부분은 자기 앱에서 검색해서 들으니, 검색어를 알려 주고 로고는 작게 한 줄로 */}
+            <p className="listen-lead serif">
+              어디서든 <b>&lsquo;양희본&rsquo;</b>을 검색하세요
+            </p>
                 <ul className="artist-links" aria-label="아티스트 페이지">
                   {artistLinks.map((l) => (
                     <li key={l.url}>
-                      <a href={l.url} target="_blank" rel="noopener" aria-label={`${l.name} 아티스트 페이지`} title={l.name}>
+                      <a href={l.url} target="_blank" rel="noopener" aria-label={`${l.name} 아티스트 페이지`} title={l.name} onClick={() => recordClick(l.name)}>
                         {l.logo ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={l.logo} alt={l.name} />

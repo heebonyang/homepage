@@ -8,6 +8,7 @@ import OrdersManager from "./OrdersManager";
 import AlbumPageEditor from "./AlbumPageEditor";
 import TicketsManager from "./TicketsManager";
 import { formatDate, HeartIcon, loadGuestbook, type GuestbookEntry } from "../Guestbook";
+import { clickKey, loadClicks, thisMonth } from "../linkClicks";
 import { loadSettings, SETTINGS_DOC, type MusicLink } from "../siteSettings";
 
 type Section = "links" | "album" | "albumPage" | "orders" | "tickets" | "guestbook";
@@ -253,10 +254,13 @@ function LinksManager({ fb }: { fb: FirebaseServices }) {
   const [links, setLinks] = useState<MusicLink[] | null>(null);
   const [editing, setEditing] = useState<{ index: number | null; value: MusicLink } | null>(null);
   const [notice, setNotice] = useState("");
+  // 사이트에서 로고를 누른 횟수 (이름별 이번 달 · 전체)
+  const [clicks, setClicks] = useState<Record<string, { month: number; total: number }> | null>(null);
 
   useEffect(() => {
     loadSettings({ fresh: true }).then((s) => setLinks(s.musicLinks));
-  }, []);
+    loadClicks(fb).then(setClicks).catch(() => setClicks({}));
+  }, [fb]);
 
   const saveAll = async (next: MusicLink[], message: string) => {
     // undefined 값은 저장할 수 없어서 로고가 없으면 필드를 빼고 저장
@@ -305,7 +309,7 @@ function LinksManager({ fb }: { fb: FirebaseServices }) {
         </button>
       )}
       <ul className="divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white">
-        {links.length === 0 && <li className="p-5 text-stone-500">링크가 없어요. 음악 탭에도 표시되지 않아요.</li>}
+        {links.length === 0 && <li className="p-5 text-stone-500">링크가 없어요. 홈페이지 STREAMING 칸에도 로고가 보이지 않아요.</li>}
         {links.map((link, i) => (
           <li key={i} className="flex items-center gap-4 p-4">
             <div className="flex flex-col">
@@ -332,6 +336,11 @@ function LinksManager({ fb }: { fb: FirebaseServices }) {
             <div className="min-w-0 flex-1">
               <p className="font-medium text-stone-900">{link.name}</p>
               <p className="text-sm text-stone-500 truncate">{link.url}</p>
+              <p className="mt-1 text-xs text-stone-500 tabular-nums">
+                {clicks === null
+                  ? "누른 횟수 불러오는 중…"
+                  : `${thisMonth().slice(5).replace(/^0/, "")}월에 ${clicks[clickKey(link.name)]?.month ?? 0}번 · 지금까지 ${clicks[clickKey(link.name)]?.total ?? 0}번 눌렸어요`}
+              </p>
             </div>
             {link.logo && (
               <a href={link.logo} download={logoFileName(link.name, link.logo)} className="text-sm text-stone-700 hover:underline">
