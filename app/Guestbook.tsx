@@ -13,17 +13,12 @@ import {
 } from "firebase/firestore/lite";
 import { getFirebase } from "./firebase";
 
-// 오늘 밤 한마디 (예전 방명록, 저장 위치는 guestbook 그대로). 라이브에서 사연·신청곡으로 읽어 줌
-// liked: 홈페이지 주인(관리자)이 라이브에서 읽은 글에 남기는 표시 (하트)
+// liked: 홈페이지 주인(관리자)이 관리자 페이지에서 남긴 하트
 export type GuestbookEntry = { id: string; name: string; message: string; createdAt: Timestamp | null; liked?: boolean };
 
 export const NAME_MAX = 30;
 export const MESSAGE_MAX = 500;
 const PASSWORD_MIN = 4;
-// 홈페이지에서 쓰는 한마디는 짧게 (저장 규칙은 500자까지)
-const WRITE_MAX = 300;
-// 처음에 보이는 글 수, 더 보기 한 번에 늘어나는 수
-const PAGE = 6;
 
 // 비밀번호는 글 번호와 섞어 SHA-256 해시로만 저장 (같은 비밀번호라도 글마다 다른 값이 됨)
 async function hashPassword(postId: string, password: string) {
@@ -168,7 +163,6 @@ export default function Guestbook() {
   const [message, setMessage] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
-  const [visible, setVisible] = useState(PAGE);
 
   useEffect(() => {
     loadGuestbook().then(setEntries);
@@ -189,100 +183,112 @@ export default function Guestbook() {
     }
   };
 
-  const shown = entries?.slice(0, visible) ?? [];
-
   return (
     <div>
       {entries === null ? (
         <p className="rounded-xl border border-stone-200 bg-white p-6 text-stone-500">
-          준비하고 있어요. 조금만 기다려 주세요.
+          방명록을 준비하고 있어요. 조금만 기다려 주세요.
         </p>
       ) : (
         <>
-          {/* 쓰는 칸이 먼저: 한마디 · 이름 · 비밀번호(지울 때) */}
-          <form onSubmit={submit} className="rounded-2xl border border-stone-200 bg-white p-4 sm:p-5 grid gap-3">
-            <label className="sr-only" htmlFor="guestbook-message">
-              한마디
+          <ul className="grid gap-3">
+            {entries === undefined && <li className="py-6 text-stone-400">불러오는 중…</li>}
+            {entries?.length === 0 && (
+              <li className="rounded-2xl border border-dashed border-stone-300 p-8 text-center text-stone-500">
+                아직 글이 없어요. 아래에서 첫 번째 글을 남겨 주세요.
+              </li>
+            )}
+            {entries?.map((entry) => (
+              <li key={entry.id} className="rounded-2xl border border-stone-200 bg-white p-5">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                    <span>
+                      <span className={`font-semibold ${nameColor(entry.id)}`}>{entry.name}</span>
+                      <span className="ml-2 text-sm text-stone-400 tabular-nums">{formatDate(entry.createdAt)}</span>
+                    </span>
+                    <span className="flex items-center gap-3">
+                      {/* 홈페이지 주인이 관리자 페이지에서 남긴 하트 (삭제 왼쪽). 아직 안 남긴 글은 속이 빈 하트 */}
+                      <span
+                        className={entry.liked ? "text-rose-600" : "text-stone-300"}
+                        role="img"
+                        aria-label={entry.liked ? "양희본의 하트" : "아직 하트 없음"}
+                      >
+                        <HeartIcon filled={!!entry.liked} size={26} />
+                      </span>
+                      <DeleteControl id={entry.id} onDeleted={() => setEntries((list) => list?.filter((x) => x.id !== entry.id))} />
+                    </span>
+                  </div>
+                  <p className="mt-2 text-[15px] leading-relaxed text-stone-800 whitespace-pre-wrap break-words">
+                    {entry.message}
+                  </p>
+
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <form onSubmit={submit} className="mt-12 rounded-2xl border border-stone-200 bg-white p-6 grid gap-4">
+            <h3 className="text-lg font-bold text-stone-900">방명록 남기기</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-1.5">
+                <span className="text-sm text-stone-500">이름</span>
+                <input
+                  id="guestbook-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  maxLength={NAME_MAX}
+                  required
+                  className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:border-stone-900"
+                />
+              </label>
+              <label className="grid gap-1.5">
+                <span className="text-sm text-stone-500">
+                  비밀번호 <span className="text-stone-400">· 글을 지울 때 필요해요 ({PASSWORD_MIN}자 이상)</span>
+                </span>
+                <input
+                  id="guestbook-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  minLength={PASSWORD_MIN}
+                  maxLength={50}
+                  required
+                  autoComplete="new-password"
+                  className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:border-stone-900"
+                />
+              </label>
+            </div>
+            <label className="grid gap-1.5">
+              <span className="flex justify-between text-sm text-stone-500">
+                <span>메시지</span>
+                <span className="tabular-nums">
+                  {message.length}/{MESSAGE_MAX}
+                </span>
+              </span>
+              <textarea
+                id="guestbook-message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                maxLength={MESSAGE_MAX}
+                rows={4}
+                required
+                className="rounded-lg border border-stone-300 px-3 py-2 resize-y focus:outline-none focus:border-stone-900"
+              />
             </label>
-            <textarea
-              id="guestbook-message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              maxLength={WRITE_MAX}
-              rows={3}
-              required
-              placeholder="오늘 밤 라이브에서 듣고 싶은 노래, 들려주고 싶은 이야기, 안부 한마디"
-              className="w-full rounded-xl bg-[#FFFBF5] border border-stone-200 px-4 py-3 text-[15px] leading-relaxed resize-none placeholder:text-stone-400 focus:outline-none focus:border-[#15489E]"
-            />
-            <div className="flex flex-wrap items-center gap-2">
-              <input
-                id="guestbook-name"
-                aria-label="이름"
-                placeholder="이름"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={NAME_MAX}
-                required
-                className="min-w-0 flex-1 basis-[40%] sm:basis-auto sm:flex-none sm:w-36 rounded-full border border-stone-200 bg-[#FFFBF5] px-4 py-2 text-sm focus:outline-none focus:border-[#15489E]"
-              />
-              <input
-                id="guestbook-password"
-                type="password"
-                aria-label={`비밀번호 (지울 때 필요, ${PASSWORD_MIN}자 이상)`}
-                placeholder="비밀번호"
-                title="글을 지울 때 필요해요"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                minLength={PASSWORD_MIN}
-                maxLength={50}
-                required
-                autoComplete="new-password"
-                className="min-w-0 flex-1 basis-[40%] sm:basis-auto sm:flex-none sm:w-36 rounded-full border border-stone-200 bg-[#FFFBF5] px-4 py-2 text-sm focus:outline-none focus:border-[#15489E]"
-              />
-              <span className="ml-auto text-xs text-stone-400 tabular-nums">
-                {message.length}/{WRITE_MAX}
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-sm text-stone-500">
+                {status === "sent" && "남겨 주셔서 고마워요."}
+                {status === "error" && <span className="text-red-700">등록하지 못했어요. 잠시 후 다시 시도해 주세요.</span>}
               </span>
               <button
                 type="submit"
                 disabled={status === "sending"}
-                className="px-5 py-2 rounded-full bg-[#15489E] text-white text-sm font-semibold hover:bg-[#0F3A85] disabled:opacity-50"
+                className="px-5 py-2 rounded-full bg-stone-900 text-white text-sm hover:bg-stone-700 disabled:opacity-50"
               >
-                {status === "sending" ? "보내는 중…" : "보내기"}
+                {status === "sending" ? "남기는 중…" : "남기기"}
               </button>
             </div>
-            {status === "sent" && <p className="text-sm text-[#15489E]">보냈어요. 오늘 밤 라이브에서 만나요 🌙</p>}
-            {status === "error" && <p className="text-sm text-red-700">보내지 못했어요. 잠시 후 다시 시도해 주세요.</p>}
           </form>
-
-          <ul className="grid gap-2" style={{ marginTop: 20 }}>
-            {entries === undefined && <li className="py-4 text-stone-400">불러오는 중…</li>}
-            {shown.map((entry) => (
-              <li key={entry.id} className="rounded-2xl bg-white/70 border border-stone-200/70 px-4 py-3">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <span className="min-w-0">
-                    <span className={`font-semibold ${nameColor(entry.id)}`}>{entry.name}</span>
-                    <span className="ml-2 text-xs text-stone-400 tabular-nums">{formatDate(entry.createdAt)}</span>
-                  </span>
-                  <span className="flex items-center gap-3">
-                    {/* 홈페이지 주인이 라이브에서 읽은 글에 관리자 페이지에서 표시 */}
-                    {entry.liked && (
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600">
-                        <HeartIcon filled size={14} />
-                        라이브에서 읽었어요
-                      </span>
-                    )}
-                    <DeleteControl id={entry.id} onDeleted={() => setEntries((list) => list?.filter((x) => x.id !== entry.id))} />
-                  </span>
-                </div>
-                <p className="mt-1 text-[15px] leading-relaxed text-stone-800 whitespace-pre-wrap [overflow-wrap:anywhere]">{entry.message}</p>
-              </li>
-            ))}
-          </ul>
-          {entries && entries.length > visible && (
-            <button type="button" onClick={() => setVisible((v) => v + PAGE)} className="mt-4 w-full rounded-full border border-stone-200 py-2 text-sm text-stone-500 hover:text-stone-900">
-              더 보기
-            </button>
-          )}
         </>
       )}
     </div>

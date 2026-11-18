@@ -8,13 +8,14 @@ import { useSiteSettings } from "../siteSettings";
 import { BRIDGE_SVG } from "./bridge";
 import Concert from "./Concert";
 import Live from "./Live";
+import LiveLetter from "./LiveLetter";
 import Lounge from "./Lounge";
 import OrderForm from "./OrderForm";
 import { DEFAULT_PAGE, imageSrc, usePage } from "./pageContent";
 import "./home.css";
 
 // 홈페이지 한 장 (예전 0집 페이지 heebonmd.web.app 와 합침)
-// 광안대교 밤 그림 + 유튜브 라이브 카운트다운 → 양희본 0집(구매) → 음원 사이트 로고 → 공연(좌석 예매) → 오늘 밤 한마디 → 문의
+// 광안대교 밤 그림 + 유튜브 라이브 카운트다운 → 양희본 0집(구매) → 음원 사이트 로고 → 공연(좌석 예매) → 방명록 → 문의
 // 문구는 관리자 '홈페이지 문구', 주문·예매는 '0집 주문'·'공연 예매'에서 관리.
 export default function HomePage() {
   const loaded = usePage();
@@ -89,7 +90,7 @@ export default function HomePage() {
               <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z" />
               <path d="M14.5 5.5l3 3" />
             </svg>
-            한마디
+            방명록
           </a>
         </header>
         <div className="bridge" dangerouslySetInnerHTML={{ __html: BRIDGE_SVG }} />
@@ -98,6 +99,7 @@ export default function HomePage() {
           <div className="wrap">
             <div className="kicker live-k">LIVE</div>
             <Live live={page.live} />
+            <LiveLetter />
           </div>
         </div>
       </div>

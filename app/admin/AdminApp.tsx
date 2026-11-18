@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
 import { deleteDoc, doc, setDoc } from "firebase/firestore/lite";
 import { getFirebase, type FirebaseServices } from "../firebase";
+import LiveLettersManager from "./LiveLettersManager";
 import OrdersManager from "./OrdersManager";
 import AlbumPageEditor from "./AlbumPageEditor";
 import TicketsManager from "./TicketsManager";
@@ -11,9 +12,9 @@ import { formatDate, HeartIcon, loadGuestbook, type GuestbookEntry } from "../Gu
 import { clickKey, loadClicks, thisMonth } from "../linkClicks";
 import { loadSettings, SETTINGS_DOC, type MusicLink } from "../siteSettings";
 
-type Section = "links" | "album" | "albumPage" | "orders" | "tickets" | "guestbook";
+type Section = "links" | "album" | "albumPage" | "orders" | "tickets" | "letters" | "guestbook";
 
-const SECTION_LABELS: Record<Section, string> = { links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", guestbook: "오늘 밤 한마디" };
+const SECTION_LABELS: Record<Section, string> = { links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", letters: "세로 라이브 사연 · 신청곡", guestbook: "방명록" };
 
 function errorMessage(e: unknown) {
   const code = (e as { code?: string })?.code;
@@ -478,11 +479,13 @@ function Dashboard({ fb }: { fb: FirebaseServices }) {
 
       {section === "orders" && <OrdersManager fb={fb} />}
 
+      {section === "letters" && <LiveLettersManager fb={fb} />}
+
       {section === "tickets" && <TicketsManager fb={fb} />}
 
       {section === "guestbook" && (
         <ul className="mt-8 divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white">
-          {guestbook.length === 0 && <li className="p-5 text-stone-500">아직 들어온 한마디가 없어요. 라이브에서 읽은 글은 하트를 누르면 사이트에 ‘라이브에서 읽었어요’로 보여요.</li>}
+          {guestbook.length === 0 && <li className="p-5 text-stone-500">아직 방명록 글이 없어요.</li>}
           {guestbook.map((g) => (
             <li key={g.id} className="flex gap-4 p-4">
               <div className="min-w-0 flex-1">
@@ -496,13 +499,13 @@ function Dashboard({ fb }: { fb: FirebaseServices }) {
                 type="button"
                 onClick={() => toggleHeart(g)}
                 aria-pressed={!!g.liked}
-                aria-label={g.liked ? "읽었어요 표시 취소" : "라이브에서 읽었어요"}
-                title={g.liked ? "읽었어요 표시 취소" : "라이브에서 읽었어요"}
+                aria-label={g.liked ? "하트 취소" : "하트 남기기"}
+                title={g.liked ? "하트 취소" : "하트 남기기"}
                 className={`self-start grid place-items-center w-10 h-10 -my-1 rounded-full hover:bg-rose-50 ${g.liked ? "text-rose-600" : "text-stone-300 hover:text-rose-600"}`}
               >
                 <HeartIcon filled={!!g.liked} size={26} />
               </button>
-              <ConfirmButton label="삭제" onConfirm={() => remove("guestbook", g.id, "한마디")} />
+              <ConfirmButton label="삭제" onConfirm={() => remove("guestbook", g.id, "방명록 글")} />
             </li>
           ))}
         </ul>

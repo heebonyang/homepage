@@ -182,5 +182,26 @@ service cloud.firestore {
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(["count"])
         && request.resource.data.count == resource.data.count + 1;
     }
+
+    // 세로 라이브 사연 · 신청곡 편지. 보내기는 누구나, 읽기·읽음 표시·삭제는 관리자만 (다른 사람은 볼 수 없음)
+    match /liveLetters/{id} {
+      allow read, delete: if isAdmin();
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["read"])
+        && request.resource.data.read is bool;
+      allow create: if request.resource.data.keys().hasOnly(["kind", "name", "song", "message", "createdAt"])
+        && request.resource.data.kind in ["story", "song"]
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 30
+        && request.resource.data.song is string
+        && request.resource.data.song.size() <= 100
+        && request.resource.data.message is string
+        && request.resource.data.message.size() <= 1000
+        && (request.resource.data.kind == "song"
+          ? request.resource.data.song.size() > 0
+          : request.resource.data.message.size() > 0)
+        && request.resource.data.createdAt == request.time;
+    }
   }
 }

@@ -217,3 +217,32 @@
 .hb .sign-info{margin:0;display:flex;flex-direction:column;gap:2px}
 .hb .sign-info b{font-size:16px;color:var(--text);font-weight:600}
 .hb .sign-info span{font-size:14px;color:var(--muted)}
+/* 세로 라이브 사연 · 신청곡 편지 */
+.hb .letter-open{display:inline-flex;align-items:center;gap:9px;margin-top:22px;height:44px;padding:0 22px;border-radius:999px;border:1px solid rgba(254,247,237,.35);background:transparent;color:#FEF7ED;font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .25s,color .25s}
+.hb .letter-open:hover,.hb .letter-open:active{background:#FEF7ED;color:#0A0E26}
+.hb .letter{position:relative;width:min(100%,520px);margin-top:26px;padding:28px 26px 22px;border-radius:6px;color:#1A2033;text-align:left;
+  background:#FEF7ED repeating-linear-gradient(to bottom,transparent 0,transparent 31px,rgba(21,72,158,.12) 31px,rgba(21,72,158,.12) 32px);
+  box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 0 1px rgba(254,247,237,.1);transform:rotate(-.6deg);animation:hbletter .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes hbletter{from{opacity:0;transform:translateY(14px) rotate(-.6deg)}}
+.hb .letter-stamp{position:absolute;top:16px;right:18px;width:52px;height:60px;display:grid;place-items:center;background:#15489E;border-radius:3px;outline:2px dashed #FEF7ED;outline-offset:-5px;transform:rotate(4deg)}
+.hb .letter-to{margin:0 0 14px;font-size:22px;font-weight:700;color:#15489E}
+.hb .letter-kind{display:inline-flex;gap:4px;padding:3px;border-radius:999px;background:rgba(21,72,158,.08);margin-bottom:14px}
+.hb .letter-kind button{border:0;background:transparent;font:inherit;font-size:14px;font-weight:600;color:#646A7E;padding:5px 16px;border-radius:999px;cursor:pointer}
+.hb .letter-kind button.on{background:#15489E;color:#FEF7ED}
+.hb .letter-line,.hb .letter-body,.hb .letter-from input{width:100%;border:0;background:transparent;font-family:var(--font-gowun),serif;font-size:17px;line-height:32px;color:#1A2033;outline:none}
+.hb .letter-line{border-bottom:1px solid rgba(21,72,158,.35);margin-bottom:6px;font-weight:700}
+.hb .letter-body{resize:none;display:block}
+.hb .letter-line::placeholder,.hb .letter-body::placeholder,.hb .letter-from input::placeholder{color:#9AA0B2}
+.hb .letter-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}
+.hb .letter-from{display:flex;align-items:baseline;gap:8px;font-size:18px;font-weight:700;color:#15489E;flex:1 1 200px;margin:0}
+.hb .letter-from input{flex:1;min-width:0;border-bottom:1px solid rgba(21,72,158,.35);font-size:16px}
+.hb .letter-send{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 20px;border:0;border-radius:999px;background:#15489E;color:#FEF7ED;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.hb .letter-send:disabled{opacity:.6}
+.hb .letter-error{margin:10px 0 0;font-size:14px;color:#B42318}
+.hb .letter-close{display:block;margin:14px auto 0;border:0;background:transparent;font:inherit;font-size:13px;color:#9AA0B2;cursor:pointer}
+.hb .letter-sent{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:34px 26px}
+.hb .letter-sent-icon{display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:#15489E;color:#FEF7ED;margin-bottom:6px}
+.hb .letter-sent p{margin:0;font-size:22px;font-weight:700;color:#15489E}
+.hb .letter-sent small{font-size:15px;color:#3D4459}
+.hb .letter-again{margin-top:12px;border:1px solid rgba(21,72,158,.35);background:transparent;border-radius:999px;padding:8px 18px;font:inherit;font-size:14px;color:#15489E;cursor:pointer}
+@media (max-width:420px){.hb .letter{padding:24px 18px 18px}.hb .letter-stamp{width:44px;height:52px;top:14px;right:14px}.hb .letter-stamp svg{width:32px;height:32px}}
