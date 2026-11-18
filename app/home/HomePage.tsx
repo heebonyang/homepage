@@ -48,7 +48,7 @@ export default function HomePage() {
     <div className={`hb${loaded ? "" : " loading"}`} style={{ ["--accent" as string]: page.accent || "#15489E" }}>
       <div className="top">
         <header className="topbar wrap">
-          {/* 이름 세 글자가 가장 먼저 보이게: 이름 + 유튜브·인스타, 그 아래 작게 현위치 */}
+          {/* 이름 세 글자가 가장 먼저 보이게: 이름 + 유튜브·인스타 */}
           <div className="brand-block">
             <div className="brand-row">
           <Link
@@ -80,13 +80,6 @@ export default function HomePage() {
             </a>
           </span>
             </div>
-            <span className="here">
-              <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden>
-                <path d="M12 2.5a7 7 0 0 0-7 7c0 5.2 7 12 7 12s7-6.8 7-12a7 7 0 0 0-7-7z" fill="currentColor" />
-                <circle cx="12" cy="9.5" r="2.6" fill="#0D1230" />
-              </svg>
-              부산 광안리
-            </span>
           </div>
           <a
             className="nav-lounge"
@@ -109,7 +102,17 @@ export default function HomePage() {
         {/* 유튜브 로고를 누르면 바로 채널로. 매일 밤 10시 세로 라이브, 방송 시간에는 ON AIR */}
         <div className="liveline">
           <div className="wrap">
-            <div className="kicker live-k">LIVE</div>
+            {/* LIVE + 현위치 (광안리에서 하는 라이브) */}
+            <div className="live-head">
+              <span className="kicker">LIVE</span>
+              <span className="here">
+                <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden>
+                  <path d="M12 2.5a7 7 0 0 0-7 7c0 5.2 7 12 7 12s7-6.8 7-12a7 7 0 0 0-7-7z" fill="currentColor" />
+                  <circle cx="12" cy="9.5" r="2.6" fill="#0D1230" />
+                </svg>
+                부산 광안리
+              </span>
+            </div>
             {/* 저장된 문구를 불러오기 전에는 처음 값(예전 문구)이 잠깐 보이지 않게 숨겨 둠 (.hb.loading [data-cms]) */}
             <div data-cms className="live-cms">
               <Live live={page.live} />
