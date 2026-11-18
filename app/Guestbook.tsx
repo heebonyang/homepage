@@ -186,7 +186,7 @@ export default function Guestbook() {
   return (
     <div>
       {entries === null ? (
-        <p className="mt-6 rounded-xl border border-stone-200 bg-white p-6 text-stone-500">
+        <p className="rounded-xl border border-stone-200 bg-white p-6 text-stone-500">
           방명록을 준비하고 있어요. 조금만 기다려 주세요.
         </p>
       ) : (
