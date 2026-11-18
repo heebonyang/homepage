@@ -15,9 +15,8 @@
 .hb .brand:hover{color:#fff}
 .hb .sns{display:flex;align-items:center}
 .hb .sns a{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;color:#DCE5F4;transition:color .2s,background .2s}
-.hb .sns a:hover{background:rgba(254,247,237,.1)}
-.hb .sns a.yt:hover{color:#ff0000}
-.hb .sns a.ig:hover{color:#ff5fa8}
+/* 마우스가 있는 기기에서만 (휴대폰에서 누른 뒤 색이 남아 있지 않게) */
+@media (hover:hover){.hb .sns a:hover{background:rgba(254,247,237,.1)}.hb .sns a.yt:hover{color:#ff0000}.hb .sns a.ig:hover{color:#ff5fa8}}
 .hb .album h1{margin:0;font-weight:700;font-size:clamp(52px,7vw,96px);line-height:1.05;letter-spacing:-.02em}
 .hb .album h1 .acc{color:var(--accent)}
 .hb .lead{margin:0;font-size:19px;color:var(--text)}
