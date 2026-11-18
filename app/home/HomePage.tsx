@@ -12,7 +12,7 @@ import { DEFAULT_PAGE, imageSrc, isOnAir, usePage } from "./pageContent";
 import "./home.css";
 
 // 홈페이지 한 장 (예전 0집 페이지 heebonmd.web.app 와 합침)
-// 광안대교 밤 그림 + 유튜브 매일 밤 10시 라이브 + 아티스트 페이지 → 양희본 0집(구매) → 공연(좌석 예매) → 소식 → 문의
+// 광안대교 밤 그림 + 유튜브 매일 밤 10시 라이브 → 양희본 0집(구매) → 음원 사이트(아티스트 페이지) → 공연(좌석 예매) → 소식 → 문의
 // 문구는 관리자 '홈페이지 문구', 주문·예매는 '0집 주문'·'공연 예매'에서 관리.
 export default function HomePage() {
   const loaded = usePage();
@@ -84,28 +84,11 @@ export default function HomePage() {
                 <rect className="yt-body" width="28" height="20" rx="5.6" />
                 <path className="yt-play" d="M11.2 5.7v8.6l7.4-4.3z" />
               </svg>
-              <span className="yt-when serif">{onAir ? "지금, 라이브 중" : "매일 밤 10시"}</span>
-              <span className={`onair${onAir ? " on" : ""}`}>
-                <i aria-hidden />
-                {onAir ? "ON AIR" : "YOUTUBE LIVE"}
+              <span className="yt-when serif">
+                {onAir && <i className="onair-dot" aria-label="라이브 중" />}
+                매일 밤 10시 ~ 11시 세로 라이브
               </span>
             </a>
-            {artistLinks.length > 0 && (
-              <ul className="artist-links" aria-label="아티스트 페이지">
-                {artistLinks.map((l) => (
-                  <li key={l.url}>
-                    <a href={l.url} target="_blank" rel="noopener" aria-label={`${l.name} 아티스트 페이지`} title={l.name}>
-                      {l.logo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={l.logo} alt={l.name} />
-                      ) : (
-                        <span>{l.name}</span>
-                      )}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
         </div>
       </div>
@@ -145,6 +128,27 @@ export default function HomePage() {
         <section id="order" className="order" aria-label="주문서">
           <div className="wrap">
             <OrderForm page={page} stock={stock?.stock ?? null} onClose={closeOrder} />
+          </div>
+        </section>
+      )}
+
+      {artistLinks.length > 0 && (
+        <section className="listen" aria-label="음원 사이트">
+          <div className="wrap">
+                <ul className="artist-links" aria-label="아티스트 페이지">
+                  {artistLinks.map((l) => (
+                    <li key={l.url}>
+                      <a href={l.url} target="_blank" rel="noopener" aria-label={`${l.name} 아티스트 페이지`} title={l.name}>
+                        {l.logo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={l.logo} alt={l.name} />
+                        ) : (
+                          <span>{l.name}</span>
+                        )}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
           </div>
         </section>
       )}
