@@ -9,8 +9,8 @@ const notoKr = Noto_Sans_KR({ subsets: ["latin"], weight: ["400", "500", "600", 
 const gowun = Gowun_Batang({ subsets: ["latin"], weight: ["400", "700"], display: "swap", preload: false, variable: "--font-gowun" });
 
 export const metadata: Metadata = {
-  title: "양희본 — 싱어송라이터 · 치과의사",
-  description: "음악과 치과 진료를 각각의 탭에서 소개합니다.",
+  title: "양희본 — 싱어송라이터",
+  description: "싱어송라이터 양희본의 노래와 소식.",
 };
 
 export default function RootLayout({

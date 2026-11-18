@@ -14,11 +14,11 @@ import { loadMusic } from "../musicData";
 import { formatDate, HeartIcon, loadGuestbook, type GuestbookEntry } from "../Guestbook";
 import { RELEASES, type Release, type Team } from "../music";
 import { loadNotices, STATIC_NOTICES, type Notice } from "../notices";
-import { loadSettings, SETTINGS_DOC, type InfoItem, type MusicLink, type SiteSettings } from "../siteSettings";
+import { loadSettings, SETTINGS_DOC, type MusicLink, type SiteSettings } from "../siteSettings";
 
-type Section = "headings" | "bio" | "clinic" | "links" | "album" | "albumPage" | "orders" | "tickets" | "releases" | "demos" | "teams" | "notices" | "guestbook";
+type Section = "headings" | "links" | "album" | "albumPage" | "orders" | "tickets" | "releases" | "demos" | "teams" | "notices" | "guestbook";
 
-const SECTION_LABELS: Record<Section, string> = { headings: "머리글", bio: "치과 약력", clinic: "치과 정보", links: "링크", album: "0집 CD", albumPage: "0집 페이지", orders: "0집 주문", tickets: "공연 예매", releases: "음원", demos: "데모", teams: "팀 프로젝트", notices: "공지", guestbook: "방명록" };
+const SECTION_LABELS: Record<Section, string> = { headings: "머리글", links: "링크", album: "0집 CD", albumPage: "0집 페이지", orders: "0집 주문", tickets: "공연 예매", releases: "음원", demos: "데모", teams: "팀 프로젝트", notices: "공지", guestbook: "방명록" };
 
 const RELEASE_TYPES: Release["type"][] = ["싱글", "EP", "정규"];
 
@@ -444,7 +444,7 @@ function HeadingsEditor({ fb }: { fb: FirebaseServices }) {
     try {
       await setDoc(
         doc(fb.db, ...SETTINGS_DOC),
-        { musicTagline: draft.musicTagline.trim(), dentalTagline: draft.dentalTagline.trim(), loungeTagline: draft.loungeTagline.trim() },
+        { musicTagline: draft.musicTagline.trim(), loungeTagline: draft.loungeTagline.trim() },
         { merge: true },
       );
       setStatus("saved");
@@ -463,18 +463,6 @@ function HeadingsEditor({ fb }: { fb: FirebaseServices }) {
           value={draft.musicTagline}
           onChange={(e) => {
             setDraft({ ...draft, musicTagline: e.target.value });
-            setStatus("idle");
-          }}
-          maxLength={80}
-          className={inputClass}
-        />
-      </Field>
-      <Field label="치과 탭" hint="치과의사 옆">
-        <input
-          id="heading-dental"
-          value={draft.dentalTagline}
-          onChange={(e) => {
-            setDraft({ ...draft, dentalTagline: e.target.value });
             setStatus("idle");
           }}
           maxLength={80}
@@ -1209,10 +1197,6 @@ function Dashboard({ fb }: { fb: FirebaseServices }) {
 
       {section === "headings" && <HeadingsEditor fb={fb} />}
 
-      {section === "bio" && <BioEditor fb={fb} />}
-
-      {section === "clinic" && <ClinicInfoEditor fb={fb} />}
-
       {section === "demos" && <DemosManager fb={fb} />}
 
       {section === "links" && <LinksManager fb={fb} />}
@@ -1477,209 +1461,3 @@ function DemosManager({ fb }: { fb: FirebaseServices }) {
   );
 }
 
-// 치과 탭 약력: 한 줄에 하나씩. 저장하면 치과 탭 이름 바로 아래에 보임
-function BioEditor({ fb }: { fb: FirebaseServices }) {
-  const [bio, setBio] = useState<string | null>(null);
-  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    loadSettings({ fresh: true }).then((s) => setBio(s.dentalBio));
-  }, []);
-
-  if (bio === null) return <p className="mt-8 text-stone-400">불러오는 중…</p>;
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("saving");
-    const cleaned = bio
-      .split("\n")
-      .map((l) => l.trim())
-      .filter(Boolean)
-      .join("\n");
-    try {
-      await setDoc(doc(fb.db, ...SETTINGS_DOC), { dentalBio: cleaned }, { merge: true });
-      setBio(cleaned);
-      setStatus("saved");
-    } catch (err) {
-      setError(errorMessage(err));
-      setStatus("error");
-    }
-  };
-
-  return (
-    <form onSubmit={submit} className="mt-8 grid gap-5 rounded-2xl border border-stone-200 bg-white p-6">
-      <p className="text-sm text-stone-500">
-        치과 탭 이름 바로 아래에 보이는 약력이에요. 한 줄에 하나씩 쓰고, 앞에 연도를 쓰면 왼쪽에 따로 보여요. 비워 두면 표시되지 않아요.
-      </p>
-      <Field label="약력" hint="예: 2015 ○○대학교 치의학대학원 졸업 / 2020 – 현재 ○○치과 원장">
-        <textarea
-          id="dental-bio"
-          rows={10}
-          value={bio}
-          onChange={(e) => {
-            setBio(e.target.value);
-            setStatus("idle");
-          }}
-          className={`${inputClass} leading-relaxed`}
-        />
-      </Field>
-      <div className="flex items-center justify-end gap-4">
-        {status === "saved" && <span className="text-sm text-stone-600">저장했어요. 사이트에 바로 반영돼요.</span>}
-        {status === "error" && <span className="text-sm text-red-700">{error}</span>}
-        <button type="submit" disabled={status === "saving"} className="px-5 py-2 rounded-full bg-stone-900 text-white text-sm disabled:opacity-50">
-          {status === "saving" ? "저장 중…" : "저장"}
-        </button>
-      </div>
-    </form>
-  );
-}
-
-// 칸 이름·내용 목록 (치과 정보의 '진료 안내', '진료 예약·문의')
-function InfoListEditor({
-  title,
-  hint,
-  items,
-  onChange,
-}: {
-  title: string;
-  hint: string;
-  items: InfoItem[];
-  onChange: (items: InfoItem[]) => void;
-}) {
-  const update = (i: number, patch: Partial<InfoItem>) => onChange(items.map((it, k) => (k === i ? { ...it, ...patch } : it)));
-  const move = (i: number, delta: -1 | 1) => {
-    const j = i + delta;
-    if (j < 0 || j >= items.length) return;
-    const next = [...items];
-    [next[i], next[j]] = [next[j], next[i]];
-    onChange(next);
-  };
-  return (
-    <fieldset className="grid gap-3">
-      <legend className="font-semibold text-stone-900">{title}</legend>
-      <p className="-mt-1 text-sm text-stone-500">{hint}</p>
-      {items.length === 0 && <p className="text-sm text-stone-400">항목이 없어요. 비워 두면 치과 탭에 이 부분이 보이지 않아요.</p>}
-      {items.length > 0 && (
-        // 넓은 화면: [순서] [제목 10rem] [내용] [✕] 한 줄. 휴대폰: 제목 아래에 내용
-        <div className="hidden sm:grid grid-cols-[1.5rem_10rem_minmax(0,1fr)_2rem] gap-2 text-xs text-stone-500" aria-hidden>
-          <span />
-          <span>제목 (작은 회색 글씨)</span>
-          <span>내용 (크게 보이는 글씨)</span>
-          <span />
-        </div>
-      )}
-      {items.map((it, i) => (
-        <div key={i} className="grid grid-cols-[1.5rem_minmax(0,1fr)_2rem] sm:grid-cols-[1.5rem_10rem_minmax(0,1fr)_2rem] items-start gap-2">
-          <div className="flex flex-col pt-1">
-            <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label={`${it.label || "항목"} 위로`} className="px-1 text-xs text-stone-500 hover:text-stone-900 disabled:opacity-25">
-              ▲
-            </button>
-            <button
-              type="button"
-              onClick={() => move(i, 1)}
-              disabled={i === items.length - 1}
-              aria-label={`${it.label || "항목"} 아래로`}
-              className="px-1 text-xs text-stone-500 hover:text-stone-900 disabled:opacity-25"
-            >
-              ▼
-            </button>
-          </div>
-          <div className="grid gap-2 min-w-0 sm:contents">
-            <input
-              aria-label="제목"
-              placeholder="제목 (예: 진료 시간)"
-              value={it.label}
-              onChange={(e) => update(i, { label: e.target.value })}
-              className={`${inputClass} min-w-0 text-sm`}
-            />
-            <textarea
-              aria-label="내용"
-              placeholder="내용 (예: 평일 09:30 – 18:30)"
-              rows={1}
-              value={it.value}
-              onChange={(e) => update(i, { value: e.target.value })}
-              className={`${inputClass} min-w-0 resize-y`}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => onChange(items.filter((_, k) => k !== i))}
-            aria-label={`${it.label || "항목"} 지우기`}
-            className="px-2 py-2 text-stone-400 hover:text-red-700"
-          >
-            ✕
-          </button>
-        </div>
-      ))}
-      <button type="button" onClick={() => onChange([...items, { label: "", value: "" }])} className="w-fit text-sm text-stone-700 underline underline-offset-4">
-        + 항목 추가
-      </button>
-    </fieldset>
-  );
-}
-
-// 치과 탭 '진료 안내'와 '진료 예약·문의'에 보이는 정보
-function ClinicInfoEditor({ fb }: { fb: FirebaseServices }) {
-  const [clinic, setClinic] = useState<InfoItem[] | null>(null);
-  const [contact, setContact] = useState<InfoItem[]>([]);
-  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    loadSettings({ fresh: true }).then((s) => {
-      setClinic(s.dentalClinic);
-      setContact(s.dentalContact);
-    });
-  }, []);
-
-  if (!clinic) return <p className="mt-8 text-stone-400">불러오는 중…</p>;
-
-  const clean = (list: InfoItem[]) =>
-    list.map((it) => ({ label: it.label.trim(), value: it.value.trim() })).filter((it) => it.label || it.value);
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("saving");
-    const dentalClinic = clean(clinic);
-    const dentalContact = clean(contact);
-    try {
-      await setDoc(doc(fb.db, ...SETTINGS_DOC), { dentalClinic, dentalContact }, { merge: true });
-      setClinic(dentalClinic);
-      setContact(dentalContact);
-      setStatus("saved");
-    } catch (err) {
-      setError(errorMessage(err));
-      setStatus("error");
-    }
-  };
-
-  const changed = <T,>(set: (v: T) => void) => (v: T) => {
-    set(v);
-    setStatus("idle");
-  };
-
-  return (
-    <form onSubmit={submit} className="mt-8 grid gap-8 rounded-2xl border border-stone-200 bg-white p-6">
-      <InfoListEditor
-        title="진료 안내"
-        hint="치과 탭에 카드로 보여요. 왼쪽 칸은 카드 위 작은 제목(예: 소속), 오른쪽 칸은 크게 보이는 내용(예: ○○치과)이에요."
-        items={clinic}
-        onChange={changed(setClinic)}
-      />
-      <InfoListEditor
-        title="진료 예약·문의"
-        hint="예: 전화, 주소, 예약 링크. 전화번호는 눌러서 바로 걸 수 있고, https:// 로 시작하는 주소는 링크가 돼요."
-        items={contact}
-        onChange={changed(setContact)}
-      />
-      <div className="flex items-center justify-end gap-4">
-        {status === "saved" && <span className="text-sm text-stone-600">저장했어요. 사이트에 바로 반영돼요.</span>}
-        {status === "error" && <span className="text-sm text-red-700">{error}</span>}
-        <button type="submit" disabled={status === "saving"} className="px-5 py-2 rounded-full bg-stone-900 text-white text-sm disabled:opacity-50">
-          {status === "saving" ? "저장 중…" : "저장"}
-        </button>
-      </div>
-    </form>
-  );
-}

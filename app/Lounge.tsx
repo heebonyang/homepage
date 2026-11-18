@@ -71,7 +71,7 @@ export default function Lounge() {
 
   return (
     <div className="pt-12 pb-16">
-      {/* 음악·치과 탭과 같은 크기와 배치 */}
+      {/* 음악 탭과 같은 크기와 배치 */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
           <h1 className="text-2xl font-bold text-stone-900">라운지</h1>

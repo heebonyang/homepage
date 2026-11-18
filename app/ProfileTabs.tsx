@@ -3,142 +3,27 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import MusicPanel from "./MusicPanel";
 import Lounge from "./Lounge";
-import RolePill from "./RolePill";
 import SocialLinks from "./SocialLinks";
-import { useSiteSettings } from "./siteSettings";
 
-// ── 치과 탭 내용 (음악 탭 내용은 app/music.ts) ──────────────────────
-// 음악과 치과는 서로 완전히 분리된 탭으로, 내용이 섞이지 않습니다.
+// 홈페이지는 음악에만 집중: 음악 · 라운지 두 탭
 const NAME_EN = "Heebon Yang";
 const NAME_KO = "양희본";
 
-// 진료 안내·연락처는 관리자 페이지 '치과 정보'에서 고침 (기본값은 app/siteSettings.ts)
-const DENTAL = { role: "치과의사", title: "양희본" };
-// ────────────────────────────────────────────────────────────────
+type Tab = "music" | "lounge";
 
-type Tab = "music" | "dental" | "lounge";
-
-const TAB_LABELS: Record<Tab, string> = { music: "음악", dental: "치과", lounge: "라운지" };
+const TAB_LABELS: Record<Tab, string> = { music: "음악", lounge: "라운지" };
 
 const THEME = {
-  music:  { eyebrow: "text-brand-red",   active: "bg-brand-red text-white" },
-  dental: { eyebrow: "text-brand-blue",  active: "bg-brand-blue text-white" },
-  lounge: { eyebrow: "text-brand-green", active: "bg-brand-green text-white" },
+  music:  { active: "bg-brand-red text-white" },
+  lounge: { active: "bg-brand-green text-white" },
 };
-
-// tagline(머리글)은 관리자 페이지 '머리글'에서 수정
-function Hero({ tab, role, title, tagline }: { tab: Tab; role: string; title: string; tagline?: string }) {
-  return (
-    <div className="pt-12 pb-16">
-      {/* 이름은 상단 바에 있으므로 여기서는 탭 색 알약으로 직업만 표시 (음악 탭과 같은 모양, 제목은 화면 낭독기용으로만 둠) */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <h1 className="sr-only">{title} {role}</h1>
-        <RolePill color={tab === "music" ? "amber" : "sky"}>{role}</RolePill>
-        <p className="text-stone-500">{tagline}</p>
-      </div>
-    </div>
-  );
-}
-
-function Section({ tab, eyebrow, title, children }: { tab: Tab; eyebrow: string; title: string; children: React.ReactNode }) {
-  return (
-    <section className="py-14 border-t border-stone-200">
-      <p className={`text-xs font-semibold tracking-[0.2em] uppercase ${THEME[tab].eyebrow}`}>{eyebrow}</p>
-      <h2 className="mt-2 text-2xl font-bold text-stone-900">{title}</h2>
-      <div className="mt-6">{children}</div>
-    </section>
-  );
-}
-
-// 약력 한 줄: "2015 ○○대학교 치의학대학원 졸업"처럼 앞에 연도(기간)가 있으면 왼쪽 칸에 따로 보여 줌
-function splitBioLine(line: string) {
-  const m = line.match(/^(\d{4}(?:[.\d]*)?(?:\s*[~–—-]\s*(?:\d{4}(?:[.\d]*)?|현재)?)?)\s+(.+)$/);
-  return m ? { when: m[1], what: m[2] } : { when: "", what: line };
-}
-
-function DentalBio({ bio }: { bio: string }) {
-  const lines = bio.split("\n").map((l) => l.trim()).filter(Boolean);
-  if (lines.length === 0) return null;
-  const items = lines.map(splitBioLine);
-  // 연도를 쓴 줄이 하나라도 있을 때만 왼쪽에 연도 칸을 둠
-  const hasWhen = items.some((it) => it.when);
-  return (
-    <Section tab="dental" eyebrow="Profile" title="약력">
-      <ul className="grid gap-3">
-        {items.map(({ when, what }, i) => (
-          <li key={i} className={hasWhen ? "grid gap-x-6 sm:grid-cols-[140px_1fr]" : ""}>
-            {hasWhen && <span className="text-sm text-stone-500 tabular-nums sm:pt-0.5">{when}</span>}
-            <span className="text-lg text-stone-900">{what}</span>
-          </li>
-        ))}
-      </ul>
-    </Section>
-  );
-}
-
-// 전화번호는 눌러서 바로 걸 수 있게, 인터넷 주소는 링크로
-function ContactValue({ value }: { value: string }) {
-  if (/^https?:\/\//.test(value)) {
-    return (
-      <a href={value} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-brand-blue">
-        {value}
-      </a>
-    );
-  }
-  if (/^[\d\s()+-]{7,}$/.test(value)) {
-    return (
-      <a href={`tel:${value.replace(/[^\d+]/g, "")}`} className="underline underline-offset-4 hover:text-brand-blue">
-        {value}
-      </a>
-    );
-  }
-  return <>{value}</>;
-}
-
-function DentalPanel() {
-  const settings = useSiteSettings();
-  return (
-    <>
-      <Hero tab="dental" {...DENTAL} tagline={settings?.dentalTagline} />
-      {/* 약력은 이름 바로 아래, 가장 먼저 보이는 자리 */}
-      {settings && <DentalBio bio={settings.dentalBio} />}
-      {settings && settings.dentalClinic.length > 0 && (
-        <Section tab="dental" eyebrow="Clinic" title="진료 안내">
-          <dl className="grid gap-4 sm:grid-cols-3">
-            {settings.dentalClinic.map((item, i) => (
-              <div key={i} className="rounded-xl border border-stone-200 bg-white p-5">
-                <dt className="text-sm text-stone-500">{item.label}</dt>
-                <dd className="mt-1 font-medium text-stone-900 whitespace-pre-wrap">{item.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </Section>
-      )}
-      {settings && settings.dentalContact.length > 0 && (
-        <Section tab="dental" eyebrow="Contact" title="진료 예약·문의">
-          <dl className="space-y-2">
-            {settings.dentalContact.map((item, i) => (
-              <div key={i} className="flex gap-4">
-                <dt className="w-20 shrink-0 text-stone-500">{item.label}</dt>
-                <dd className="min-w-0 text-stone-900 whitespace-pre-wrap break-words">
-                  <ContactValue value={item.value} />
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </Section>
-      )}
-    </>
-  );
-}
 
 export default function ProfileTabs() {
   const [tab, setTab] = useState<Tab>("music");
 
-  // #music / #dental / #lounge 주소로 바로 해당 탭을 열 수 있게 함
+  // #music / #lounge 주소로 바로 해당 탭을 열 수 있게 함 (예전 #dental 주소는 음악 탭으로)
   useEffect(() => {
-    const hash = window.location.hash.slice(1);
-    if (hash === "dental" || hash === "lounge") setTab(hash);
+    if (window.location.hash.slice(1) === "lounge") setTab("lounge");
   }, []);
 
   // 모든 탭이 같은 폭을 씀
@@ -175,7 +60,7 @@ export default function ProfileTabs() {
             <SocialLinks />
           </div>
           <div role="tablist" className="ml-auto flex shrink-0 sm:gap-1 p-1 rounded-full border border-stone-200 bg-white text-sm">
-            {(["music", "dental", "lounge"] as const).map((t) => (
+            {(["music", "lounge"] as const).map((t) => (
               <button
                 key={t}
                 role="tab"
@@ -192,7 +77,6 @@ export default function ProfileTabs() {
 
       <main role="tabpanel" className={`${width} mx-auto px-4`}>
         {tab === "music" && <MusicPanel />}
-        {tab === "dental" && <DentalPanel />}
         {tab === "lounge" && <Lounge />}
       </main>
 
