@@ -99,7 +99,6 @@ export default function Live({ live }: { live: PageContent["live"] }) {
         </span>
       )}
       <span className="live-notice">
-        <span className="live-notice-tag">공지</span>
         <span className="live-notice-text">{live.label?.trim() || `매일 ${range}, 세로 라이브`}</span>
       </span>
     </a>

@@ -17,9 +17,9 @@ type FieldDef = { path: string; label: string; type?: FieldType; hint?: string }
 const GROUPS: { title: string; note?: string; fields: FieldDef[] }[] = [
   {
     title: "세로 라이브",
-    note: "맨 위 광안대교 아래 카운트다운. 안내 문구는 카운트다운 아래 '공지' 칸에 보여요. 방송 시간에는 자동으로 ON AIR 로 바뀌어요 (한국 시간)",
+    note: "맨 위 광안대교 아래 카운트다운. 안내 문구는 카운트다운 아래 금색 칸에 보여요. 방송 시간에는 자동으로 ON AIR 로 바뀌어요 (한국 시간)",
     fields: [
-      { path: "live.label", label: "공지 문구", hint: "예: 매일 밤 10시 ~ 11시, 세로 라이브" },
+      { path: "live.label", label: "안내 문구", hint: "예: 매일 밤 10시 ~ 11시, 세로 라이브" },
       { path: "live.start", label: "방송 시작", type: "time" },
       { path: "live.minutes", label: "방송 길이", type: "number", hint: "분" },
     ],
