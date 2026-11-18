@@ -46,7 +46,6 @@ export default function OrderForm({ page, stock, onClose }: { page: PageContent;
   const unit = Number(page.order.unitPrice) || 10000;
   const maxQty = Math.max(1, Math.min(Number(page.order.maxQty) || 10, stock ?? 10));
   const [qty, setQty] = useState(1);
-  const [sign, setSign] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<Done | null>(null);
@@ -66,8 +65,8 @@ export default function OrderForm({ page, stock, onClose }: { page: PageContent;
     if (!/^[0-9][0-9-]{8,13}$/.test(phone)) return setError("연락처를 숫자로 적어 주세요. (예: 010-1234-5678)");
     if (address.length < 5) return setError("받는 주소를 적어 주세요.");
     if (!f.get("agree")) return setError("개인정보 수집·이용에 동의해 주셔야 주문할 수 있어요.");
-    // 싸인 요청은 관리자 '0집 주문'에서 바로 보이도록 요청사항 맨 앞에 붙임
-    if (sign) memo = (`[싸인 요청${signName ? ` · 이름: ${signName}` : ""}]` + (memo ? `\n${memo}` : "")).slice(0, 300);
+    // 모든 CD에 사인 + 손편지. 편지에 다른 이름을 원하면 관리자 '0집 주문'에서 바로 보이도록 요청사항 맨 앞에 붙임
+    if (signName) memo = (`[편지 이름: ${signName}]` + (memo ? `\n${memo}` : "")).slice(0, 300);
     setError("");
     setBusy(true);
     try {
@@ -90,7 +89,7 @@ export default function OrderForm({ page, stock, onClose }: { page: PageContent;
         no,
         amount: `${won(qty * unit)} (${qty}장)`,
         depositor,
-        sign: sign ? `비닐 뜯고 싸인해서 보내 드려요${signName ? ` (${signName} 님께)` : ""}` : "",
+        sign: `사인과 손편지를 넣어 보내 드려요 (${signName || name} 님께)`,
       });
       document.getElementById("order")?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (err) {
@@ -132,7 +131,7 @@ export default function OrderForm({ page, stock, onClose }: { page: PageContent;
             <dd>{done.depositor}</dd>
             {done.sign && (
               <>
-                <dt>싸인</dt>
+                <dt>사인 · 편지</dt>
                 <dd>{done.sign}</dd>
               </>
             )}
@@ -187,21 +186,16 @@ export default function OrderForm({ page, stock, onClose }: { page: PageContent;
             </div>
           </div>
           <div className="sign">
-            <label className="opt">
-              <input type="checkbox" checked={sign} onChange={(e) => setSign(e.target.checked)} />
-              <span>
-                <b>비닐 뜯고 싸인해서 보내 주세요</b>
-                <span>원하시면 비닐을 뜯고 자켓에 직접 싸인해 드려요. (무료)</span>
-              </span>
-            </label>
-            {sign && (
-              <div>
-                <label htmlFor="oSignName">
-                  싸인에 넣을 이름 <small>선택 · 비워 두면 싸인만 해 드려요</small>
-                </label>
-                <input type="text" id="oSignName" name="signName" maxLength={20} />
-              </div>
-            )}
+            <p className="sign-info">
+              <b>모든 CD에 직접 사인하고, 손편지를 함께 넣어 보내드려요</b>
+              <span>사인과 편지를 넣기 위해 비닐을 뜯어서 보내드려요.</span>
+            </p>
+            <div>
+              <label htmlFor="oSignName">
+                편지에 적을 이름 <small>선택 · 비우면 주문자 이름으로 (선물이면 받는 분 이름)</small>
+              </label>
+              <input type="text" id="oSignName" name="signName" maxLength={20} />
+            </div>
           </div>
           <div>
             <label htmlFor="oMemo">

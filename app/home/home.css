@@ -209,3 +209,11 @@
 .hb .nav-lounge:hover .nav-pen,.hb .nav-lounge:active .nav-pen{color:#15489E;transform:rotate(-12deg)}
 .hb .listen-lead{margin:0;font-size:clamp(20px,2.6vw,26px);font-weight:700;color:var(--text);line-height:1.4}
 .hb .listen-lead b{color:#15489E}
+.hb .signnote{display:flex;gap:14px;align-items:flex-start;margin-top:8px;padding:16px 18px;border-radius:14px;background:#FFFBF5;border:1px solid rgba(21,72,158,.22);color:#15489E}
+.hb .signnote svg{flex:none;margin-top:2px}
+.hb .signnote span{display:flex;flex-direction:column;gap:4px}
+.hb .signnote b{font-size:17px;font-weight:700;line-height:1.5;color:var(--text)}
+.hb .signnote small{font-size:13px;color:var(--muted)}
+.hb .sign-info{margin:0;display:flex;flex-direction:column;gap:2px}
+.hb .sign-info b{font-size:16px;color:var(--text);font-weight:600}
+.hb .sign-info span{font-size:14px;color:var(--muted)}
