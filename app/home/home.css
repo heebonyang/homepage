@@ -8,10 +8,10 @@
 .hb .pre{white-space:pre-line}
 .hb .kicker{font-size:14px;letter-spacing:.2em;color:var(--accent)}
 .hb .top{position:relative;background:#0D1230}
-.hb .topbar{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;align-items:center;gap:6px;padding-top:18px;padding-bottom:18px}
-.hb .brand{display:inline-flex;align-items:baseline;gap:8px;color:#DCE5F4;text-decoration:none;white-space:nowrap;margin-right:6px}
-.hb .brand .ko{font-size:16px;font-weight:700;letter-spacing:.04em}
-.hb .brand .en{font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
+.hb .topbar{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;align-items:flex-start;gap:6px;padding-top:20px;padding-bottom:18px}
+.hb .brand{display:inline-flex;align-items:baseline;gap:10px;color:#FEF7ED;text-decoration:none;white-space:nowrap;margin-right:6px}
+.hb .brand .ko{font-family:var(--font-gowun),serif;font-size:clamp(24px,2.6vw,30px);font-weight:700;letter-spacing:.02em;line-height:1}
+.hb .brand .en{font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(220,229,244,.55)}
 .hb .brand:hover{color:#fff}
 .hb .sns{display:flex;align-items:center}
 .hb .sns a{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;color:#DCE5F4;transition:color .2s,background .2s}
@@ -199,13 +199,14 @@
 .hb .sec-head{padding-top:64px}
 .hb .live-k{align-self:flex-start;color:#FEF7ED;margin-bottom:8px}
 .hb .album .lead{font-size:clamp(22px,2.6vw,28px);font-weight:700;line-height:1.5;letter-spacing:-.01em}
-.hb .nav-lounge{margin-left:auto;display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:999px;border:1px solid rgba(254,247,237,.28);background:rgba(254,247,237,.06);color:#FEF7ED;text-decoration:none;font-size:14px;font-weight:600;letter-spacing:.04em;white-space:nowrap;backdrop-filter:blur(6px);transition:background .25s,color .25s,border-color .25s}
-.hb .nav-lounge:hover,.hb .nav-lounge:active{background:#FEF7ED;color:#0D1230;border-color:#FEF7ED}
-.hb #lounge{scroll-margin-top:16px}@media (max-width:420px){.hb .brand .en{font-size:11px;letter-spacing:.12em}.hb .sns a{width:30px;height:30px}.hb .nav-lounge{padding:0 12px;height:32px;font-size:13px;gap:6px}}
+.hb .nav-lounge{margin-left:auto;align-self:flex-start;margin-top:6px;display:inline-flex;align-items:center;gap:6px;color:rgba(220,229,244,.7);text-decoration:none;font-size:13px;font-weight:500;letter-spacing:.04em;white-space:nowrap;transition:color .25s}
+.hb .nav-lounge:hover,.hb .nav-lounge:active{color:#FEF7ED}
+.hb #lounge{scroll-margin-top:16px}
+@media (max-width:420px){.hb .brand .en{font-size:10px;letter-spacing:.14em}.hb .sns a{width:30px;height:30px}.hb .brand .ko{font-size:24px}}
 @media (max-width:350px){.hb .brand .en{display:none}}
 
-.hb .nav-pen{flex:none;color:#F5C46B;transition:color .25s,transform .3s}
-.hb .nav-lounge:hover .nav-pen,.hb .nav-lounge:active .nav-pen{color:#15489E;transform:rotate(-12deg)}
+.hb .nav-pen{flex:none;transition:transform .3s}
+.hb .nav-lounge:hover .nav-pen,.hb .nav-lounge:active .nav-pen{transform:rotate(-12deg)}
 .hb .listen-lead{margin:0;font-size:clamp(20px,2.6vw,26px);font-weight:700;color:var(--text);line-height:1.4}
 .hb .listen-lead b{color:#15489E}
 .hb .signnote{display:flex;gap:14px;align-items:flex-start;margin-top:8px;padding:16px 18px;border-radius:14px;background:#FFFBF5;border:1px solid rgba(21,72,158,.22);color:#15489E}
@@ -253,9 +254,8 @@
 .hb .live-cms{display:flex;flex-direction:column;align-items:center;width:100%}
 .hb .credit{opacity:.6;letter-spacing:.02em}
 .hb .foot-bottom{justify-content:flex-end}
-/* 현위치: 테두리 없이 핀 + 글자만, 가운데. 핀이 현위치처럼 은은하게 빛남 */
-.hb .here-wrap{position:absolute;left:0;right:0;top:64px;z-index:2;pointer-events:none;display:flex;justify-content:center}
-.hb .here{display:inline-flex;align-items:center;gap:7px;color:#FBE3B4;font-family:var(--font-gowun),serif;font-size:15px;font-weight:700;letter-spacing:.06em}
-.hb .here-pin{position:relative;display:grid;place-items:center;width:16px;height:18px}
-@keyframes hbhere{0%,100%{filter:drop-shadow(0 0 0 rgba(245,196,107,0))}50%{filter:drop-shadow(0 0 6px rgba(245,196,107,.9))}}
-.hb .here-pin svg{animation:hbhere 2.4s ease-in-out infinite}
+
+.hb .brand-block{display:flex;flex-direction:column;gap:6px;min-width:0}
+.hb .brand-row{display:flex;align-items:center;gap:6px}
+.hb .here{display:inline-flex;align-items:center;gap:5px;font-size:12px;letter-spacing:.06em;color:rgba(220,229,244,.5)}
+.hb .here svg{color:#F5C46B;opacity:.85}
