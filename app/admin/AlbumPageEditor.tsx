@@ -23,7 +23,7 @@ const GROUPS: { title: string; note?: string; fields: FieldDef[] }[] = [
       { path: "hero.title", label: "이름" },
       { path: "hero.titleAccent", label: "강조 문구", hint: "파란색으로 보임" },
       { path: "hero.lead", label: "소개 문장", type: "area" },
-      { path: "album.description", label: "설명", type: "area" },
+      { path: "album.description", label: "음반 설명", type: "area", hint: "비우면 숨김" },
       { path: "album.tracklist", label: "수록곡", type: "area", hint: "한 줄에 한 곡" },
       { path: "album.hiddenTrack", label: "히든 트랙 문구", hint: "비우면 숨김" },
       { path: "album.price", label: "가격 표시", hint: "예: 10,000원 · 택배비 포함" },
@@ -42,8 +42,8 @@ const GROUPS: { title: string; note?: string; fields: FieldDef[] }[] = [
   {
     title: "공연",
     fields: [
-      { path: "concert.headline", label: "제목", type: "area" },
-      { path: "concert.description", label: "설명", type: "area" },
+      { path: "concert.headline", label: "공연 제목", type: "area" },
+      { path: "concert.description", label: "공연 설명", type: "area", hint: "제목 아래 한 줄 · 비우면 숨김" },
       { path: "concert.venue", label: "장소" },
       { path: "concert.time", label: "시간" },
       { path: "concert.ticket", label: "티켓" },
