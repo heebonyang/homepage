@@ -45,7 +45,7 @@ export default function HomePage() {
   const email = page.links.email || MUSIC_PROFILE.email;
 
   return (
-    <div className="hb" style={{ ["--accent" as string]: page.accent || "#15489E" }}>
+    <div className={`hb${loaded ? "" : " loading"}`} style={{ ["--accent" as string]: page.accent || "#15489E" }}>
       <div className="top">
         <header className="topbar wrap">
           <Link
@@ -98,7 +98,10 @@ export default function HomePage() {
         <div className="liveline">
           <div className="wrap">
             <div className="kicker live-k">LIVE</div>
-            <Live live={page.live} />
+            {/* 저장된 문구를 불러오기 전에는 처음 값(예전 문구)이 잠깐 보이지 않게 숨겨 둠 (.hb.loading [data-cms]) */}
+            <div data-cms className="live-cms">
+              <Live live={page.live} />
+            </div>
             <LiveLetter />
           </div>
         </div>
@@ -109,7 +112,7 @@ export default function HomePage() {
           <div className="kicker">CD</div>
         </div>
         <div className="wrap grid2">
-          <div className="cover" style={page.album.coverImage ? { border: "none" } : undefined}>
+          <div className="cover" data-cms style={page.album.coverImage ? { border: "none" } : undefined}>
             {page.album.coverImage ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={imageSrc(page.album.coverImage)} alt={`${page.album.title} 자켓`} />
@@ -117,7 +120,7 @@ export default function HomePage() {
               "[0집 자켓 이미지]"
             )}
           </div>
-          <div className="col">
+          <div className="col" data-cms>
             {/* 자켓에 이미 이름이 있어 화면에서는 숨기고, 검색·화면 읽기용으로만 둠 */}
             <h1 className="sr-only">
               {page.hero.title} {page.hero.titleAccent}
@@ -188,12 +191,14 @@ export default function HomePage() {
       )}
 
       <div className="deep">
-        <Concert page={page} open={ticketing} setOpen={setTicketing} />
+        <div data-cms>
+          <Concert page={page} open={ticketing} setOpen={setTicketing} />
+        </div>
         <Lounge />
         <footer>
           <div className="wrap foot">
             <div className="foot-lights" aria-hidden />
-            <div className="contact">
+            <div className="contact" data-cms>
               <span className="home-k">CONTACT</span>
               <span className="contact-t">공연 · 협업 문의</span>
               <a href={`mailto:${email}`}>{email}</a>

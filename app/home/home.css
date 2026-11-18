@@ -248,3 +248,7 @@
 @media (max-width:420px){.hb .letter{padding:24px 18px 18px}.hb .letter-stamp{width:44px;height:52px;top:14px;right:14px}.hb .letter-stamp svg{width:32px;height:32px}}
 .hb .lounge-panel{position:relative}
 .hb .lounge-panel .gb-write{position:absolute;right:clamp(22px,4vw,44px);top:calc(clamp(22px,4vw,44px) + 22px)}
+/* 처음 불러오는 동안: 관리자에서 고친 문구가 오기 전 기본 문구가 깜빡이지 않게 자리만 잡고 숨김 */
+.hb [data-cms]{transition:opacity .35s ease}
+.hb.loading [data-cms]{opacity:0;visibility:hidden}
+.hb .live-cms{display:flex;flex-direction:column;align-items:center;width:100%}
