@@ -81,22 +81,6 @@ export default function HomePage() {
           </span>
             </div>
           </div>
-          <a
-            className="nav-lounge"
-            href="#lounge"
-            onClick={(e) => {
-              e.preventDefault();
-              history.replaceState(null, "", "#lounge");
-              document.getElementById("lounge")?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }}
-          >
-            {/* 펜: 글을 남기는 곳 */}
-            <svg className="nav-pen" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z" />
-              <path d="M14.5 5.5l3 3" />
-            </svg>
-            방명록
-          </a>
         </header>
         <div className="bridge" dangerouslySetInnerHTML={{ __html: BRIDGE_SVG }} />
         {/* 유튜브 로고를 누르면 바로 채널로. 매일 밤 10시 세로 라이브, 방송 시간에는 ON AIR */}
