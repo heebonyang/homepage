@@ -1,6 +1,6 @@
 # 양희본 · Heebon Yang
 
-싱어송라이터 양희본의 홈페이지입니다. https://heebonyang.web.app
+양희본의 홈페이지입니다. https://heebonyang.web.app
 
 음악 · 라운지(공지 / 방명록) 두 탭으로 음악에만 집중하고, 관리자 페이지(`/admin`)가 있습니다. 0집 CD 구매는 0집 페이지(https://heebonmd.web.app)에서 하고, 예전 주소 `/shop`도 그리로 연결됩니다.
 

@@ -20,7 +20,6 @@ const GROUPS: { title: string; note?: string; fields: FieldDef[] }[] = [
     note: "자켓 · 제목 · 소개 · 가격 · 구매 버튼",
     fields: [
       { path: "album.coverImage", label: "자켓 이미지", type: "cover" },
-      { path: "hero.kicker", label: "작은 문구" },
       { path: "hero.title", label: "이름" },
       { path: "hero.titleAccent", label: "강조 문구", hint: "파란색으로 보임" },
       { path: "hero.lead", label: "소개 문장", type: "area" },

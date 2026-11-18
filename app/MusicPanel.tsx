@@ -3,7 +3,6 @@ import { useRef, useState } from "react";
 import { MUSIC_PROFILE, type Release, type Team } from "./music";
 import { useMusicData } from "./musicData";
 import AlbumBanner from "./AlbumBanner";
-import RolePill from "./RolePill";
 import AudioPlayer from "./AudioPlayer";
 import { useDemos } from "./demos";
 import { useSiteSettings, type MusicLink } from "./siteSettings";
@@ -289,9 +288,8 @@ export default function MusicPanel() {
   return (
     <>
       <div className="pt-12 pb-10 flex flex-wrap items-center gap-x-4 gap-y-3">
-        {/* 이름은 상단 바에 있으므로 여기서는 직업 알약만 보여 줌 (제목은 화면 낭독기용으로만 둠) */}
-        <h1 className="sr-only">{MUSIC_PROFILE.name} 싱어송라이터</h1>
-        <RolePill color="amber">싱어송라이터</RolePill>
+        {/* 이름은 상단 바에 있으므로 여기서는 한 줄 소개와 링크만 (제목은 화면 낭독기용으로만 둠) */}
+        <h1 className="sr-only">{MUSIC_PROFILE.name}</h1>
         <p className="text-stone-500">{settings?.musicTagline}</p>
         {settings && <MusicLinks links={settings.musicLinks} />}
       </div>
