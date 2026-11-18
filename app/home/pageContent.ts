@@ -103,13 +103,3 @@ export function usePage() {
   return page;
 }
 
-// 라이브 중인지: 한국 시간 기준으로 매일 start 부터 minutes 분 동안
-export function isOnAir(live: PageContent["live"], now = new Date()) {
-  const [h, m] = (live.start || "22:00").split(":").map(Number);
-  if (Number.isNaN(h)) return false;
-  const kst = new Date(now.getTime() + 9 * 3600000);
-  const nowMin = kst.getUTCHours() * 60 + kst.getUTCMinutes();
-  const start = h * 60 + (m || 0);
-  const len = Math.max(1, Number(live.minutes) || 60);
-  return (nowMin - start + 1440) % 1440 < len;
-}

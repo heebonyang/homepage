@@ -2,13 +2,14 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAlbumStock } from "../LimitedStock";
-import { MUSIC_PROFILE, YOUTUBE_URL } from "../music";
+import { MUSIC_PROFILE } from "../music";
 import { useSiteSettings } from "../siteSettings";
 import { BRIDGE_SVG } from "./bridge";
 import Concert from "./Concert";
+import Live from "./Live";
 import News from "./News";
 import OrderForm from "./OrderForm";
-import { DEFAULT_PAGE, imageSrc, isOnAir, usePage } from "./pageContent";
+import { DEFAULT_PAGE, imageSrc, usePage } from "./pageContent";
 import "./home.css";
 
 // 홈페이지 한 장 (예전 0집 페이지 heebonmd.web.app 와 합침)
@@ -22,15 +23,6 @@ export default function HomePage() {
   const soldOut = stock !== null && stock.stock <= 0;
   const [ordering, setOrdering] = useState(false);
   const [ticketing, setTicketing] = useState(false);
-  const [onAir, setOnAir] = useState(false);
-
-  // 라이브 중 표시는 1분마다 다시 계산 (한국 시간 기준)
-  useEffect(() => {
-    const tick = () => setOnAir(isOnAir(page.live));
-    tick();
-    const t = setInterval(tick, 60000);
-    return () => clearInterval(t);
-  }, [page.live]);
 
   // 예전 주소(#order, #ticket)로 들어오면 해당 구역을 펼침
   useEffect(() => {
@@ -79,16 +71,7 @@ export default function HomePage() {
         {/* 유튜브 로고를 누르면 바로 채널로. 매일 밤 10시 세로 라이브, 방송 시간에는 ON AIR */}
         <div className="liveline">
           <div className="wrap">
-            <a className={`ytlive${onAir ? " on" : ""}`} href={YOUTUBE_URL} target="_blank" rel="noopener" aria-label="유튜브 양희본 채널 열기">
-              <svg className="ytlogo" viewBox="0 0 28 20" aria-hidden>
-                <rect className="yt-body" width="28" height="20" rx="5.6" />
-                <path className="yt-play" d="M11.2 5.7v8.6l7.4-4.3z" />
-              </svg>
-              <span className="yt-when serif">
-                {onAir && <i className="onair-dot" aria-label="라이브 중" />}
-                매일 밤 10시 ~ 11시 세로 라이브
-              </span>
-            </a>
+            <Live live={page.live} />
           </div>
         </div>
       </div>
