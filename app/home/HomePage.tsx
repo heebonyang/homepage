@@ -93,13 +93,15 @@ export default function HomePage() {
             방명록
           </a>
         </header>
-        {/* 현위치: 광안대교 그림 위 왼쪽 */}
+        {/* 현위치: 광안대교 그림 위 가운데 */}
         <div className="wrap here-wrap">
           <span className="here">
-            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden>
-              <path d="M12 2.5a7 7 0 0 0-7 7c0 5.2 7 12 7 12s7-6.8 7-12a7 7 0 0 0-7-7z" fill="#F5C46B" />
-              <circle cx="12" cy="9.5" r="2.6" fill="#0D1230" />
-            </svg>
+            <span className="here-pin" aria-hidden>
+              <svg viewBox="0 0 24 24" width="16" height="16">
+                <path d="M12 2.5a7 7 0 0 0-7 7c0 5.2 7 12 7 12s7-6.8 7-12a7 7 0 0 0-7-7z" fill="#F5C46B" />
+                <circle cx="12" cy="9.5" r="2.6" fill="#0D1230" />
+              </svg>
+            </span>
             부산 광안리
           </span>
         </div>
