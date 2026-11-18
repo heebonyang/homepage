@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ALBUM0, formatWon } from "./shop";
-import LimitedStock, { useAlbumStock } from "./LimitedStock";
+import { useAlbumStock } from "./LimitedStock";
 import AlbumOrder from "./AlbumOrder";
 
 // 음악 탭 맨 위에 보이는 0집 CD 판매 안내
@@ -24,9 +24,6 @@ export default function AlbumBanner() {
             양희본 <span className="text-album-navy">0집</span>
           </h2>
           {ALBUM0.intro && <p className="mt-3 leading-relaxed text-album-sub">{ALBUM0.intro}</p>}
-          <div className="mt-5">
-            <LimitedStock />
-          </div>
           <div className="mt-5 pt-5 border-t border-album-line flex flex-wrap items-center gap-x-5 gap-y-3">
             <span className="text-lg font-medium tabular-nums">
               {formatWon(ALBUM0.price)} · {ALBUM0.priceNote}

@@ -30,7 +30,7 @@ npm run build   # out/ 폴더에 정적 사이트 생성 (검사도 함께 실�
 | 치과 약력 | 치과 탭 이름 바로 아래 약력 |
 | 치과 정보 | 치과 탭 '진료 안내', '진료 예약·문의' |
 | 링크 | 음악 탭 머리글 옆 로고 링크 (멜론 등, PNG 로고 업로드) |
-| 0집 CD | 남은 수량 / 전체 수량 |
+| 0집 CD | 남은 수량 / 전체 수량 (사이트에는 보이지 않음) |
 | 0집 페이지 | 0집 판매 페이지(heebonmd.web.app)의 모든 문구 · 자켓 · 계좌 (Firestore `settings/albumPage`) |
 | 공연 예매 | 0집 페이지 예매서로 들어온 좌석 예매 (입금 확인 · 취소하면 좌석이 다시 풀림 · CSV) |
 | 음원 | 발매 음원 (표지, 미리듣기 음원은 파일을 끌어다 놓아 올림) |
@@ -64,7 +64,7 @@ npm run build   # out/ 폴더에 정적 사이트 생성 (검사도 함께 실�
 | --- | --- |
 | `app/ProfileTabs.tsx` | 첫 화면: 상단 바(SNS · 탭)와 음악 / 치과 / 라운지 탭 전환, 치과 탭 |
 | `app/MusicPanel.tsx` | 음악 탭: 머리글 · 로고 링크, 0집 배너, 대표곡 플레이어, 발매곡(솔로 / 팀), 문의 |
-| `app/AlbumBanner.tsx`, `app/LimitedStock.tsx` | 0집 판매 배너와 한정판 남은 수량 막대 |
+| `app/AlbumBanner.tsx`, `app/LimitedStock.tsx` | 0집 판매 배너 (남은 수량은 화면에 보이지 않고 품절·주문 가능 수량에만 씀) |
 | `app/Lounge.tsx`, `app/Guestbook.tsx` | 라운지: 공지와 방명록 (비밀번호로 직접 삭제, 이름 무지개색) |
 | `app/admin/AdminApp.tsx` | 관리자 페이지 (`/admin`, 구글 로그인) |
 | `app/firebase.ts` | Firebase 연결 (`/__/firebase/init.json`에서 설정을 읽음) |
