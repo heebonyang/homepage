@@ -185,21 +185,13 @@ export default function Guestbook() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-baseline justify-end gap-2">
-        {entries && entries.length > 0 && (
-          <span className="text-sm text-stone-500 tabular-nums">
-            글 <span className="font-semibold text-stone-900">{entries.length}</span>개
-          </span>
-        )}
-      </div>
-
       {entries === null ? (
         <p className="mt-6 rounded-xl border border-stone-200 bg-white p-6 text-stone-500">
           방명록을 준비하고 있어요. 조금만 기다려 주세요.
         </p>
       ) : (
         <>
-          <ul className="mt-6 grid gap-3">
+          <ul className="grid gap-3">
             {entries === undefined && <li className="py-6 text-stone-400">불러오는 중…</li>}
             {entries?.length === 0 && (
               <li className="rounded-2xl border border-dashed border-stone-300 p-8 text-center text-stone-500">
