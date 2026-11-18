@@ -126,7 +126,7 @@ export default function HomePage() {
             {page.album.description && <p className="desc">{page.album.description}</p>}
             {page.album.tracklist && <div className="tracks pre">{page.album.tracklist}</div>}
             {page.album.hiddenTrack && <div className="hidden-track">{page.album.hiddenTrack}</div>}
-            {/* 모든 CD에 사인 + 손편지 (관리자 '홈페이지 문구 > 0집'에서 문구 수정) */}
+            {/* 모든 CD에 사인 (관리자 '홈페이지 문구 > 0집'에서 문구 수정) */}
             {page.album.signNote && (
               <div className="signnote">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
