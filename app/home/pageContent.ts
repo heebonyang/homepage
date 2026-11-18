@@ -39,7 +39,7 @@ export type PageContent = {
 
 export const DEFAULT_PAGE: PageContent = {
   accent: "#15489E",
-  live: { label: "매일 밤 10시, 유튜브 세로 라이브", start: "22:00", minutes: 60 },
+  live: { label: "매일 밤 10시 ~ 11시, 세로 라이브", start: "22:00", minutes: 60 },
   hero: { title: "양희본", titleAccent: "0집", lead: "발라드와 모던록, 포크 사이 어딘가.\n조용히, 끝까지 들어야 하는 노래들." },
   album: {
     title: "양희본 0집",
