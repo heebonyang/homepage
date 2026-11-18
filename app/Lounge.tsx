@@ -70,12 +70,13 @@ export default function Lounge() {
   const settings = useSiteSettings();
 
   return (
-    <div className="pt-12 pb-16">
-      {/* 음악 탭과 같은 크기와 배치 */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <h1 className="text-2xl font-bold text-stone-900">라운지</h1>
-          <p className="text-stone-500">{settings?.loungeTagline}</p>
+    // 한 페이지 안의 한 구역 (발매곡·미발매곡과 같은 머리 모양). #lounge 주소로 바로 내려옴
+    <section id="lounge" className="scroll-mt-24 py-14 border-t border-stone-200">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-amber-700">Lounge</p>
+          <h2 className="mt-2 text-2xl font-bold text-stone-900">라운지</h2>
+          {settings?.loungeTagline && <p className="mt-1 text-sm text-stone-500">{settings.loungeTagline}</p>}
         </div>
         <div role="tablist" className="flex gap-1 p-1 rounded-full border border-stone-200 bg-white text-sm">
           {(Object.keys(BOARD_LABELS) as Board[]).map((b) => (
@@ -92,7 +93,7 @@ export default function Lounge() {
         </div>
       </div>
 
-      <div className="mt-10">{board === "notices" ? <Notices /> : <Guestbook />}</div>
-    </div>
+      <div className="mt-8">{board === "notices" ? <Notices /> : <Guestbook />}</div>
+    </section>
   );
 }

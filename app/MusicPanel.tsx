@@ -317,18 +317,23 @@ export default function MusicPanel() {
       )}
 
       <Demos />
-
-      <section className="py-14 border-t border-stone-200">
-        <div>
-          <h2 className="text-xl font-bold text-stone-900">공연·협업 문의</h2>
-          <a
-            href={`mailto:${MUSIC_PROFILE.email}`}
-            className="mt-4 inline-block text-lg text-stone-900 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-900"
-          >
-            {MUSIC_PROFILE.email}
-          </a>
-        </div>
-      </section>
     </>
+  );
+}
+
+// 공연·협업 문의 (페이지 맨 아래)
+export function Contact() {
+  return (
+    <section className="py-14 border-t border-stone-200">
+      <div>
+        <h2 className="text-xl font-bold text-stone-900">공연·협업 문의</h2>
+        <a
+          href={`mailto:${MUSIC_PROFILE.email}`}
+          className="mt-4 inline-block text-lg text-stone-900 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-900"
+        >
+          {MUSIC_PROFILE.email}
+        </a>
+      </div>
+    </section>
   );
 }
