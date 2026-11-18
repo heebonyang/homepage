@@ -15,7 +15,7 @@ export type Notice = {
 export const STATIC_NOTICES: Notice[] = [
   {
     title: "홈페이지를 열었습니다",
-    body: "새 음원 소식과 공연 일정, 진료 안내를 이곳에서 전할게요. 방명록에도 편하게 글 남겨 주세요.",
+    body: "새 소식과 공연 일정을 이곳에서 전할게요. 방명록에도 편하게 글 남겨 주세요.",
     pinned: false,
     createdAt: null,
   },

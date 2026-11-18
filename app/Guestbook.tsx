@@ -185,8 +185,7 @@ export default function Guestbook() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="text-stone-500">노래 감상, 응원, 안부 무엇이든 남겨 주세요.</p>
+      <div className="flex flex-wrap items-baseline justify-end gap-2">
         {entries && entries.length > 0 && (
           <span className="text-sm text-stone-500 tabular-nums">
             글 <span className="font-semibold text-stone-900">{entries.length}</span>개

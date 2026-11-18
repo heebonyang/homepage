@@ -47,18 +47,21 @@ function Notices() {
           <button
             onClick={() => setOpen(open === i ? null : i)}
             aria-expanded={open === i}
-            className="w-full flex items-center gap-3 py-5 text-left"
+            className="w-full flex items-center gap-3 py-4 sm:py-5 text-left"
           >
             {notice.pinned && (
               <span className="shrink-0 px-2 py-0.5 rounded-full bg-stone-900 text-white text-xs">고정</span>
             )}
-            <span className="flex-1 min-w-0 font-medium text-stone-900 truncate">{notice.title}</span>
-            <span className="shrink-0 text-sm text-stone-400 tabular-nums">{formatDate(notice.createdAt)}</span>
+            {/* 제목이 길면 줄을 바꿔 다 보여 줌. 휴대폰에서는 날짜를 제목 아래로 */}
+            <span className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
+              <span className="flex-1 min-w-0 font-medium text-stone-900 break-words [word-break:keep-all] [overflow-wrap:anywhere]">{notice.title}</span>
+              <span className="shrink-0 text-xs sm:text-sm text-stone-400 tabular-nums">{formatDate(notice.createdAt)}</span>
+            </span>
             <span className={`shrink-0 text-stone-400 transition-transform ${open === i ? "rotate-180" : ""}`} aria-hidden>
               ▾
             </span>
           </button>
-          {open === i && <p className="pb-6 leading-relaxed whitespace-pre-wrap break-words"><Linkified text={notice.body} /></p>}
+          {open === i && <p className="pb-6 leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]"><Linkified text={notice.body} /></p>}
         </li>
       ))}
     </ul>
