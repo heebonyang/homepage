@@ -13,7 +13,7 @@ import { DEFAULT_PAGE, imageSrc, usePage } from "./pageContent";
 import "./home.css";
 
 // 홈페이지 한 장 (예전 0집 페이지 heebonmd.web.app 와 합침)
-// 광안대교 밤 그림 + 유튜브 라이브 카운트다운 → 양희본 0집(구매) → 음원 사이트 로고 → 공연(좌석 예매) → 라운지(공지·방명록) → 문의
+// 광안대교 밤 그림 + 유튜브 라이브 카운트다운 → 양희본 0집(구매) → 음원 사이트 로고 → 공연(좌석 예매) → 방명록 → 문의
 // 문구는 관리자 '홈페이지 문구', 주문·예매는 '0집 주문'·'공연 예매'에서 관리.
 export default function HomePage() {
   const loaded = usePage();
@@ -84,7 +84,7 @@ export default function HomePage() {
             }}
           >
             <span className="nav-dot" aria-hidden />
-            라운지
+            방명록
           </a>
         </header>
         <div className="bridge" dangerouslySetInnerHTML={{ __html: BRIDGE_SVG }} />
