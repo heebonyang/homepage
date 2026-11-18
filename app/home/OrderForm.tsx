@@ -187,7 +187,7 @@ export default function OrderForm({ page, stock, onClose }: { page: PageContent;
           </div>
           <div className="sign">
             <p className="sign-info">
-              <b>모든 CD에 직접 사인해서 보내드려요</b>
+              <b>모든 CD에 직접 사인해서 보내드려요.</b>
               <span>사인을 위해 비닐을 뜯어서 보내드려요.</span>
             </p>
             <div>

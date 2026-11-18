@@ -246,3 +246,5 @@
 .hb .letter-sent small{font-size:15px;color:#3D4459}
 .hb .letter-again{margin-top:12px;border:1px solid rgba(21,72,158,.35);background:transparent;border-radius:999px;padding:8px 18px;font:inherit;font-size:14px;color:#15489E;cursor:pointer}
 @media (max-width:420px){.hb .letter{padding:24px 18px 18px}.hb .letter-stamp{width:44px;height:52px;top:14px;right:14px}.hb .letter-stamp svg{width:32px;height:32px}}
+.hb .lounge-panel{position:relative}
+.hb .lounge-panel .gb-write{position:absolute;right:clamp(22px,4vw,44px);top:calc(clamp(22px,4vw,44px) + 22px)}

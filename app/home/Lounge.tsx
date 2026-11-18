@@ -10,7 +10,7 @@ export default function Lounge() {
         <div className="lounge-panel">
           <div className="kicker">GUESTBOOK</div>
           <h2 className="serif lounge-title">방명록</h2>
-          <div className="mt-8">
+          <div className="mt-5">
             <Guestbook />
           </div>
         </div>
