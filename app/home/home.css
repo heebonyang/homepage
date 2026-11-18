@@ -151,26 +151,26 @@
 .hb .btn{border:0;cursor:pointer;font-family:inherit}
 .hb .btn.line{border:1px solid var(--accent)}
 /* 오늘의 세로 라이브 (광안대교 아래 밤바다 위) */
-.hb .liveline{background:#0A0E26;padding:10px 0 44px}
-.hb .liveline .wrap{display:flex;flex-direction:column;align-items:center;gap:26px;color:#DCE5F4}
-.hb .ytlive{display:flex;align-items:center;gap:22px;text-decoration:none;color:#FEF7ED;padding:18px 30px 18px 22px;border-radius:28px;background:rgba(254,247,237,.05);border:1px solid rgba(254,247,237,.14);transition:transform .2s,background .2s,border-color .2s}
-.hb .ytlive:hover{transform:translateY(-2px);background:rgba(254,247,237,.09);border-color:rgba(255,0,0,.55)}
-.hb .ytlogo{width:clamp(88px,14vw,120px);height:auto;flex:none;filter:drop-shadow(0 8px 24px rgba(255,0,0,.35))}
-.hb .ytlive.on .ytlogo{animation:hbglow 1.6s ease-in-out infinite}
-@keyframes hbglow{50%{filter:drop-shadow(0 8px 34px rgba(255,0,0,.75))}}
-.hb .yt-text{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
-.hb .yt-when{font-family:var(--font-gowun),serif;font-size:clamp(24px,4vw,36px);font-weight:700;line-height:1.2;letter-spacing:-.01em;white-space:nowrap}
-.hb .yt-when b{color:#FF4D4D}
-.hb .onair{display:inline-flex;align-items:center;gap:8px;padding:4px 12px;border-radius:999px;border:1px solid rgba(254,247,237,.35);font-size:12px;font-weight:700;letter-spacing:.16em;color:#DCE5F4}
-.hb .onair i{width:8px;height:8px;border-radius:50%;background:#FF4D4D}
-.hb .onair.on{border-color:#FF4D4D;color:#fff;background:rgba(255,0,0,.2)}
-.hb .onair.on i{box-shadow:0 0 0 0 rgba(255,77,77,.7);animation:hbpulse 1.6s ease-out infinite}
-@keyframes hbpulse{0%{box-shadow:0 0 0 0 rgba(255,77,77,.7)}100%{box-shadow:0 0 0 10px rgba(255,77,77,0)}}
-.hb .artist-links{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
-.hb .artist-links a{display:flex;align-items:center;justify-content:center;height:56px;min-width:140px;padding:0 24px;border-radius:999px;background:#FEF7ED;color:#0D1230;text-decoration:none;font-weight:700;font-size:17px;letter-spacing:.02em;transition:transform .2s,box-shadow .2s}
-.hb .artist-links a:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.35)}
-.hb .artist-links img{height:26px;width:auto;display:block}
-@media (max-width:520px){.hb .ytlive{gap:16px;padding:14px 20px 14px 16px}.hb .artist-links a{height:52px;min-width:120px}}
+.hb .liveline{background:#0A0E26;padding:4px 0 56px}
+.hb .liveline .wrap{display:flex;flex-direction:column;align-items:center;gap:34px;color:#DCE5F4}
+.hb .ytlive{--yt:#FEF7ED;display:flex;flex-direction:column;align-items:center;gap:14px;text-decoration:none;color:#FEF7ED;-webkit-tap-highlight-color:transparent;outline:none}
+.hb .ytlogo{width:clamp(64px,9vw,84px);height:auto;transition:transform .5s cubic-bezier(.2,.8,.2,1),filter .5s}
+.hb .yt-body{fill:var(--yt);transition:fill .45s ease}
+.hb .yt-play{fill:#0A0E26}
+.hb .ytlive:hover,.hb .ytlive:active,.hb .ytlive:focus-visible{--yt:#E5232E}
+.hb .ytlive:hover .ytlogo,.hb .ytlive:active .ytlogo,.hb .ytlive:focus-visible .ytlogo{transform:scale(1.06);filter:drop-shadow(0 10px 30px rgba(229,35,46,.35))}
+.hb .yt-when{font-size:clamp(26px,3.6vw,34px);font-weight:700;letter-spacing:-.01em;line-height:1.2;margin-top:4px}
+.hb .onair{display:inline-flex;align-items:center;gap:9px;font-size:11px;font-weight:600;letter-spacing:.32em;color:rgba(220,229,244,.7)}
+.hb .onair i{width:6px;height:6px;border-radius:50%;background:currentColor;transition:background .45s}
+.hb .ytlive:hover .onair i,.hb .ytlive:active .onair i{background:#E5232E}
+.hb .onair.on{color:#FEF7ED}
+.hb .onair.on i{background:#E5232E;animation:hbpulse 1.6s ease-out infinite}
+@keyframes hbpulse{0%{box-shadow:0 0 0 0 rgba(229,35,46,.7)}100%{box-shadow:0 0 0 9px rgba(229,35,46,0)}}
+.hb .artist-links{list-style:none;margin:0;padding:22px 0 0;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;position:relative}
+.hb .artist-links::before{content:"";position:absolute;top:0;left:50%;width:28px;height:1px;background:rgba(254,247,237,.25);transform:translateX(-50%)}
+.hb .artist-links a{display:flex;align-items:center;justify-content:center;height:40px;padding:0 22px;border-radius:999px;border:1px solid rgba(254,247,237,.3);color:#FEF7ED;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;transition:background .3s,color .3s,border-color .3s}
+.hb .artist-links a:hover,.hb .artist-links a:active{background:#FEF7ED;color:#0A0E26;border-color:#FEF7ED}
+.hb .artist-links img{height:18px;width:auto;display:block}
 /* 소식 (파란 바탕) */
 .hb .news{--line:rgba(254,247,237,.3);color:#FEF7ED}
 .hb .news .wrap{padding-bottom:64px;display:flex;flex-direction:column;gap:14px;max-width:1120px}

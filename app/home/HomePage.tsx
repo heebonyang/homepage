@@ -81,21 +81,13 @@ export default function HomePage() {
           <div className="wrap">
             <a className={`ytlive${onAir ? " on" : ""}`} href={YOUTUBE_URL} target="_blank" rel="noopener" aria-label="유튜브 양희본 채널 열기">
               <svg className="ytlogo" viewBox="0 0 28 20" aria-hidden>
-                <rect width="28" height="20" rx="5.6" fill="#FF0000" />
-                <path d="M11.2 5.7v8.6l7.4-4.3z" fill="#fff" />
+                <rect className="yt-body" width="28" height="20" rx="5.6" />
+                <path className="yt-play" d="M11.2 5.7v8.6l7.4-4.3z" />
               </svg>
-              <span className="yt-text">
-                <span className="yt-when">
-                  {onAir ? "지금 라이브 중" : (
-                    <>
-                      매일 밤 <b>10시</b> 라이브
-                    </>
-                  )}
-                </span>
-                <span className={`onair${onAir ? " on" : ""}`}>
-                  <i aria-hidden />
-                  {onAir ? "ON AIR" : "YouTube LIVE"}
-                </span>
+              <span className="yt-when serif">{onAir ? "지금, 라이브 중" : "매일 밤 10시"}</span>
+              <span className={`onair${onAir ? " on" : ""}`}>
+                <i aria-hidden />
+                {onAir ? "ON AIR" : "YOUTUBE LIVE"}
               </span>
             </a>
             {artistLinks.length > 0 && (
