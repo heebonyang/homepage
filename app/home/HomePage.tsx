@@ -99,10 +99,11 @@ export default function HomePage() {
             )}
           </div>
           <div className="col">
-            <h1 className="serif">
-              {page.hero.title} <span className="acc">{page.hero.titleAccent}</span>
+            {/* 자켓에 이미 이름이 있어 화면에서는 숨기고, 검색·화면 읽기용으로만 둠 */}
+            <h1 className="sr-only">
+              {page.hero.title} {page.hero.titleAccent}
             </h1>
-            {page.hero.lead && <p className="lead pre">{page.hero.lead}</p>}
+            {page.hero.lead && <p className="lead serif pre">{page.hero.lead}</p>}
             {page.album.description && <p className="desc">{page.album.description}</p>}
             {page.album.tracklist && <div className="tracks pre">{page.album.tracklist}</div>}
             {page.album.hiddenTrack && <div className="hidden-track">{page.album.hiddenTrack}</div>}

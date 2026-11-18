@@ -29,8 +29,8 @@ const GROUPS: { title: string; note?: string; fields: FieldDef[] }[] = [
     note: "자켓 · 제목 · 소개 · 가격 · 구매 버튼",
     fields: [
       { path: "album.coverImage", label: "자켓 이미지", type: "cover" },
-      { path: "hero.title", label: "이름" },
-      { path: "hero.titleAccent", label: "강조 문구", hint: "파란색으로 보임" },
+      { path: "hero.title", label: "이름", hint: "주문서 제목에 보임" },
+      { path: "hero.titleAccent", label: "강조 문구", hint: "주문서 제목에 파란색으로 보임" },
       { path: "hero.lead", label: "소개 문장", type: "area" },
       { path: "album.description", label: "음반 설명", type: "area", hint: "비우면 숨김" },
       { path: "album.tracklist", label: "수록곡", type: "area", hint: "한 줄에 한 곡" },
