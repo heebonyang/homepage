@@ -70,7 +70,7 @@ export default function Lounge() {
   const settings = useSiteSettings();
 
   return (
-    // 한 페이지 안의 한 구역 (발매곡·미발매곡과 같은 머리 모양). #lounge 주소로 바로 내려옴
+    // 한 페이지 안의 한 구역 (발매곡과 같은 머리 모양). #lounge 주소로 바로 내려옴
     <section id="lounge" className="scroll-mt-24 py-14 border-t border-stone-200">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
