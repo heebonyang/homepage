@@ -4,7 +4,7 @@ import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, serverTime
 import type { FirebaseServices } from "../firebase";
 import { formatWon } from "../shop";
 
-// 공연 좌석 예매 (0집 페이지 heebonmd.web.app 예매서에서 들어옴, 계좌이체)
+// 공연 좌석 예매 (홈페이지 공연 구역의 예매서에서 들어옴, 계좌이체)
 // 입금 대기(new) → 예매 확정(paid). 취소하면 좌석이 다시 풀려서 다른 분이 예매할 수 있음.
 // 고른 좌석은 concertSeats/{좌석} 문서로도 저장돼 있어서, 배치도의 분홍 좌석이 됨.
 type Status = "new" | "paid" | "canceled";
@@ -241,7 +241,7 @@ export default function TicketsManager({ fb }: { fb: FirebaseServices }) {
         </div>
       </div>
       <p className="text-sm text-stone-500 -mt-2">
-        예매 받기·티켓 가격·좌석 수는 &lsquo;0집 페이지&rsquo; › 공연에서 바꿔요. &lsquo;예매 취소&rsquo;를 누르면 그 좌석이 다시 풀려요. 입금자명이 예매자 이름과 다르면
+        예매 받기·티켓 가격·좌석 수는 &lsquo;홈페이지 문구&rsquo; › 공연에서 바꿔요. &lsquo;예매 취소&rsquo;를 누르면 그 좌석이 다시 풀려요. 입금자명이 예매자 이름과 다르면
         주황색으로 보여요.
       </p>
 

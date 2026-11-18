@@ -16,7 +16,7 @@ import type { FirebaseServices } from "../firebase";
 import { ALBUM0, formatWon } from "../shop";
 import { loadSettings, SETTINGS_DOC } from "../siteSettings";
 
-// 0집 CD 계좌이체 주문 (0집 페이지 heebonmd.web.app 주문서에서 들어옴)
+// 0집 CD 계좌이체 주문 (홈페이지 주문서에서 들어옴. 예전 0집 페이지 heebonmd.web.app 주문도 같은 곳)
 // 입금 대기(new) → 입금 확인(paid, 남은 수량이 줄어듦) → 발송 완료(shipped). 입금 대기에서만 취소(canceled) 가능.
 type Status = "new" | "paid" | "shipped" | "canceled";
 

@@ -17,7 +17,7 @@ import { loadSettings, SETTINGS_DOC, type MusicLink, type SiteSettings } from ".
 
 type Section = "headings" | "links" | "album" | "albumPage" | "orders" | "tickets" | "releases" | "teams" | "notices" | "guestbook";
 
-const SECTION_LABELS: Record<Section, string> = { headings: "머리글", links: "링크", album: "0집 CD", albumPage: "0집 페이지", orders: "0집 주문", tickets: "공연 예매", releases: "음원", teams: "팀 프로젝트", notices: "공지", guestbook: "방명록" };
+const SECTION_LABELS: Record<Section, string> = { headings: "머리글", links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", releases: "음원", teams: "팀 프로젝트", notices: "공지", guestbook: "방명록" };
 
 const RELEASE_TYPES: Release["type"][] = ["싱글", "EP", "정규"];
 
@@ -533,7 +533,7 @@ function AlbumStockEditor({ fb }: { fb: FirebaseServices }) {
 
   return (
     <form onSubmit={submit} className="mt-8 grid gap-5 rounded-2xl border border-stone-200 bg-white p-6">
-      <p className="text-sm text-stone-500">이 숫자는 사이트에 보이지 않아요. 주문을 이 수량까지만 받고, 0이 되면 홈페이지와 0집 페이지에 품절로 표시돼요.</p>
+      <p className="text-sm text-stone-500">이 숫자는 사이트에 보이지 않아요. 주문을 이 수량까지만 받고, 0이 되면 홈페이지에 품절로 표시돼요.</p>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="남은 수량" hint="장">
           <input

@@ -2,19 +2,28 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore/lite";
 import type { FirebaseServices } from "../firebase";
+import { imageSrc, mergePage, PAGE_DOC } from "../home/pageContent";
 
-// 0집 판매 페이지(heebonmd.web.app)의 문구를 고치는 곳.
-// 저장하면 Firestore settings/albumPage 에 들어가고, 0집 페이지가 열릴 때 이 값을 읽어 씀 (배포 필요 없음).
-// 한 번도 저장하지 않았으면 0집 페이지의 content.json(처음 값)을 불러와서 보여줌.
-const MD_SITE = "https://heebonmd.web.app";
-const DOC = ["settings", "albumPage"] as const;
+// 홈페이지(heebonyang.web.app) 문구를 고치는 곳.
+// 저장하면 Firestore settings/albumPage 에 들어가고, 홈페이지가 열릴 때 이 값을 읽어 씀 (배포 필요 없음).
+// 저장된 값이 없거나 빠진 칸은 app/home/pageContent.ts 의 처음 값으로 보여줌.
+const DOC = PAGE_DOC;
 
 type Value = string | number | boolean;
 type Content = Record<string, Record<string, Value> | Value>;
-type FieldType = "text" | "area" | "number" | "date" | "url" | "email" | "color" | "cover" | "toggle";
+type FieldType = "text" | "area" | "number" | "date" | "time" | "url" | "email" | "color" | "cover" | "toggle";
 type FieldDef = { path: string; label: string; type?: FieldType; hint?: string };
 
 const GROUPS: { title: string; note?: string; fields: FieldDef[] }[] = [
+  {
+    title: "세로 라이브",
+    note: "맨 위 광안대교 아래 한 줄. 방송 시간에는 자동으로 ON AIR 로 바뀌어요 (한국 시간)",
+    fields: [
+      { path: "live.label", label: "안내 문구", hint: "예: 매일 밤 10시, 유튜브 세로 라이브" },
+      { path: "live.start", label: "방송 시작", type: "time" },
+      { path: "live.minutes", label: "방송 길이", type: "number", hint: "분" },
+    ],
+  },
   {
     title: "0집 (맨 위)",
     note: "자켓 · 제목 · 소개 · 가격 · 구매 버튼",
@@ -52,7 +61,7 @@ const GROUPS: { title: string; note?: string; fields: FieldDef[] }[] = [
         path: "concert.ticketOpen",
         label: "예매 받기",
         type: "toggle",
-        hint: "켜면 0집 페이지에서 좌석을 골라 예매할 수 있어요. 예매 목록은 '공연 예매'에서 확인해요.",
+        hint: "켜면 홈페이지에서 좌석을 골라 예매할 수 있어요. 예매 목록은 '공연 예매'에서 확인해요.",
       },
       { path: "concert.ticketPrice", label: "1석 가격", type: "number", hint: "원 · 입금 금액 계산에 쓰여요" },
       { path: "concert.ticketUrl", label: "외부 예매 링크", type: "url", hint: "예매 받기가 꺼져 있을 때만 쓰여요. 비우면 버튼이 흐리게 보여요" },
@@ -109,7 +118,7 @@ function resizeCover(file: File): Promise<string> {
   });
 }
 
-const coverSrc = (v: string) => (/^(data:|https?:)/.test(v) ? v : `${MD_SITE}/${v.replace(/^\//, "")}`);
+const coverSrc = imageSrc;
 
 const inputClass = "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 focus:outline-none focus:border-stone-900";
 
@@ -122,20 +131,11 @@ export default function AlbumPageEditor({ fb }: { fb: FirebaseServices }) {
   useEffect(() => {
     (async () => {
       try {
-        // 처음 값(content.json) 위에 저장된 값을 덮어씀 → 나중에 0집 페이지에 새 칸이 생겨도 빈칸이 되지 않음
-        const base: Content = await fetch(`${MD_SITE}/content.json?t=${Date.now()}`)
-          .then((r) => (r.ok ? r.json() : {}))
-          .catch(() => ({}));
         const snap = await getDoc(doc(fb.db, ...DOC));
-        const saved = (snap.data() ?? {}) as Content;
-        const merged: Content = { ...base };
-        for (const [k, v] of Object.entries(saved)) {
-          merged[k] = v && typeof v === "object" && typeof base[k] === "object" ? { ...(base[k] as object), ...v } : v;
-        }
-        if (Object.keys(merged).length === 0) throw new Error("empty");
+        const merged = mergePage(snap.data()) as unknown as Content;
         setDraft(merged);
       } catch {
-        setLoadError("0집 페이지 문구를 불러오지 못했어요. 새로고침해 주세요.");
+        setLoadError("홈페이지 문구를 불러오지 못했어요. 새로고침해 주세요.");
       }
     })();
   }, [fb]);
@@ -238,11 +238,12 @@ export default function AlbumPageEditor({ fb }: { fb: FirebaseServices }) {
   return (
     <form onSubmit={submit} className="mt-8 grid gap-6">
       <p className="text-sm text-stone-500">
-        0집 판매 페이지(
-        <a href={MD_SITE} target="_blank" rel="noreferrer" className="underline underline-offset-4">
-          heebonmd.web.app
+        홈페이지(
+        <a href="/" target="_blank" rel="noreferrer" className="underline underline-offset-4">
+          heebonyang.web.app
         </a>
-        )의 문구예요. 저장하면 페이지를 새로고침했을 때 바로 반영돼요. 남은 수량은 &lsquo;0집 CD&rsquo;, 주문은 &lsquo;0집 주문&rsquo;에서 관리해요.
+        ) 문구예요. 저장하면 홈페이지를 새로고침했을 때 바로 반영돼요. 남은 수량은 &lsquo;0집 CD&rsquo;, 주문은 &lsquo;0집 주문&rsquo;, 예매는
+        &lsquo;공연 예매&rsquo;에서 관리해요.
       </p>
       {GROUPS.map((g) => (
         <fieldset key={g.title} className="grid gap-5 rounded-2xl border border-stone-200 bg-white p-6 min-w-0">
@@ -252,10 +253,10 @@ export default function AlbumPageEditor({ fb }: { fb: FirebaseServices }) {
         </fieldset>
       ))}
       <div className="sticky bottom-0 flex flex-wrap items-center justify-end gap-4 border-t border-stone-200 bg-stone-50/95 py-4">
-        {status === "saved" && <span className="text-sm text-stone-600">저장했어요. 0집 페이지를 새로고침하면 보여요.</span>}
+        {status === "saved" && <span className="text-sm text-stone-600">저장했어요. 홈페이지를 새로고침하면 보여요.</span>}
         {status === "error" && <span className="text-sm text-red-700">{error}</span>}
-        <a href={MD_SITE} target="_blank" rel="noreferrer" className="text-sm text-stone-600 underline underline-offset-4">
-          0집 페이지 보기
+        <a href="/" target="_blank" rel="noreferrer" className="text-sm text-stone-600 underline underline-offset-4">
+          홈페이지 보기
         </a>
         <button type="submit" disabled={status === "saving"} className="px-5 py-2 rounded-full bg-stone-900 text-white text-sm disabled:opacity-50">
           {status === "saving" ? "저장 중…" : "저장"}

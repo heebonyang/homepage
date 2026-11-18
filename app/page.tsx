@@ -1,5 +1,5 @@
-import ProfileTabs from "./ProfileTabs";
+import HomePage from "./home/HomePage";
 
 export default function Home() {
-  return <ProfileTabs />;
+  return <HomePage />;
 }
