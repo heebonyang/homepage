@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAlbumStock } from "../LimitedStock";
-import { MUSIC_PROFILE } from "../music";
+import { INSTAGRAM_URL, MUSIC_PROFILE, YOUTUBE_URL } from "../music";
 import { useSiteSettings } from "../siteSettings";
 import { BRIDGE_SVG } from "./bridge";
 import Concert from "./Concert";
@@ -59,6 +59,21 @@ export default function HomePage() {
             <span className="ko">양희본</span>
             <span className="en">Heebon Yang</span>
           </Link>
+          <span className="sns">
+            <a href={YOUTUBE_URL} target="_blank" rel="noopener" aria-label="YouTube에서 보기" title="YouTube" className="yt">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>
+                <rect x="2" y="5" width="20" height="14" rx="4" fill="currentColor" />
+                <path d="M10 9l5 3-5 3z" fill="#0D1230" />
+              </svg>
+            </a>
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener" aria-label="Instagram에서 보기" title="Instagram" className="ig">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                <rect x="3" y="3" width="18" height="18" rx="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+              </svg>
+            </a>
+          </span>
         </header>
         <div className="bridge" dangerouslySetInnerHTML={{ __html: BRIDGE_SVG }} />
         {/* 유튜브 로고를 누르면 바로 채널로. 매일 밤 10시 세로 라이브, 방송 시간에는 ON AIR */}

@@ -6,3 +6,6 @@ export const MUSIC_PROFILE = {
 
 // 유튜브 채널 (매일 밤 10시 세로 라이브)
 export const YOUTUBE_URL = "https://www.youtube.com/@양희본";
+
+// 인스타그램
+export const INSTAGRAM_URL = "https://www.instagram.com/heebonyang";
