@@ -169,7 +169,7 @@ export default function HomePage() {
             <div className="kicker">STREAMING</div>
             {/* 대부분은 자기 앱에서 검색해서 들으니, 검색어를 알려 주고 로고는 작게 한 줄로 */}
             <p className="listen-lead serif">
-              어디서든 <b>&lsquo;양희본&rsquo;</b>을 검색하세요
+              어디서든 <b>&lsquo;양희본&rsquo;</b>을 검색하세요.
             </p>
                 <ul className="artist-links" aria-label="아티스트 페이지">
                   {artistLinks.map((l) => (
