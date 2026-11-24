@@ -1,0 +1,26 @@
+# 모래 방명록에서 특정 날짜 글 지우기. tools/migrate/cleanup.env 를 바꿔 올리면 실행
+# cleanup.env 예:  DAY=2026-11-24  DRY_RUN=1  KEEP_MIGRATED=1
+name: Sand cleanup
+
+on:
+  push:
+    branches: [main]
+    paths: [tools/migrate/cleanup.env]
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm i --no-save --no-package-lock firebase-admin@13
+      - env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          trap 'rm -f "$RUNNER_TEMP/sa.json"' EXIT
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/sa.json"
+          set -a; . tools/migrate/cleanup.env; set +a
+          GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json" node tools/migrate/delete-sand-day.mjs
