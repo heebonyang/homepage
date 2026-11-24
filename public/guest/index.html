@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>광안리 모래 방명록</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;
+--night:#141a33;--sea:#1d2b52;--sea2:#2a3c6b;--foam:#e9ecf5;
+--sand:#d9c6a5;--sand2:#c9b28a;--etch:#6b5537;--etchHi:#efe2c8;
+--violet:#9b7bff;--ink:#f3f1ea;--muted:#b8b6c9;--panel:#1a2142}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--night);color:var(--ink);font:16px/1.55 "Gowun Dodum",system-ui,sans-serif;overflow-x:clip}
+header{padding:20px max(5vw,16px) 8px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;justify-content:space-between}
+h1{margin:0;font-size:clamp(26px,4vw,40px);line-height:1.05;font-weight:400;text-wrap:balance}
+.stat{color:var(--muted);font-size:15px}
+.stat b{color:var(--ink);font-weight:400;font-size:20px}
+.beach{position:relative;height:min(72vh,620px);min-height:440px;overflow:hidden;cursor:crosshair;user-select:none;touch-action:manipulation}
+.beach svg.bg{position:absolute;inset:0;width:100%;height:100%}
+.sandzone{position:absolute;left:0;right:0;top:38%;bottom:0}
+.msg{position:absolute;transform:translate(-50%,-50%) rotate(var(--r));font-family:"Nanum Pen Script",cursive;
+font-size:clamp(22px,3.2vw,30px);line-height:1.05;color:var(--etch);white-space:nowrap;max-width:46vw;overflow:hidden;text-overflow:ellipsis;
+text-shadow:0 1px 0 var(--etchHi),0 -1px 0 rgba(60,40,20,.35);transition:opacity 2.5s ease,filter 2.5s ease;pointer-events:none}
+.msg small{display:block;font-size:.62em;opacity:.75;text-align:right}
+.msg.age1{opacity:.62;filter:blur(.5px)}
+.msg.age2{opacity:.32;filter:blur(1.2px)}
+.msg.new{animation:etch 1.6s ease-out}
+@keyframes etch{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.foot{position:absolute;width:14px;height:22px;transform:translate(-50%,-50%) rotate(var(--r));pointer-events:none;opacity:.55;transition:opacity 3s}
+.foot::before,.foot::after{content:"";position:absolute;background:var(--sand2);border-radius:50%;box-shadow:inset 0 2px 2px rgba(80,60,30,.35)}
+.foot::before{left:2px;top:6px;width:10px;height:15px}
+.foot::after{left:3px;top:0;width:8px;height:6px}
+.wave{position:absolute;left:-5%;right:-5%;top:30%;height:30%;pointer-events:none;
+background:linear-gradient(180deg,rgba(233,236,245,0) 0%,rgba(233,236,245,.55) 70%,rgba(255,255,255,.9) 78%,rgba(217,198,165,0) 100%);
+transform:translateY(-60%);opacity:0;border-radius:0 0 50% 50%/0 0 30px 30px}
+.wave.go{animation:wash 5s ease-in-out}
+@keyframes wash{0%{transform:translateY(-60%);opacity:0}35%{opacity:.95}55%{transform:translateY(55%);opacity:.9}100%{transform:translateY(-60%);opacity:0}}
+.hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);font-size:14px;color:#5a4a33;background:rgba(239,226,200,.7);padding:4px 12px;border-radius:20px;pointer-events:none;white-space:nowrap}
+.write{padding:18px max(5vw,16px);display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel)}
+.write input{font:16px "Gowun Dodum",sans-serif;padding:12px 14px;border-radius:10px;border:1px solid #3a4675;background:#11172e;color:var(--ink);min-height:44px}
+.write input:focus,button:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+#text{flex:1 1 260px}#name{flex:0 1 140px}
+button{font:16px "Gowun Dodum",sans-serif;min-height:44px;padding:0 18px;border-radius:10px;border:0;cursor:pointer}
+.primary{background:var(--violet);color:#141a33}
+.ghost{background:transparent;color:var(--ink);border:1px solid #3a4675}
+.count{font-size:13px;color:var(--muted);width:3.5em;text-align:right}
+.player{padding:14px max(5vw,16px);display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;border-top:1px solid #2a3360;color:var(--muted);font-size:15px}
+.player .now{color:var(--ink)}
+.archive{padding:18px max(5vw,16px) 40px}
+.archive h2{font-size:20px;font-weight:400;margin:0 0 10px}
+.archive ol{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.archive li{display:flex;gap:12px;border-bottom:1px solid #2a3360;padding:8px 0}
+.archive time{color:var(--muted);font-size:14px;flex:none;width:7.5em}
+.archive span.who{color:var(--muted);font-size:14px;margin-left:auto;flex:none}
+.note{font-size:13px;color:var(--muted);margin-top:14px}
+.hidden{display:none}
+@media(max-width:600px){.beach{height:64vh;min-height:400px}.msg{max-width:70vw}#name{flex:1 1 100%}.write button{flex:1}}
+@media(prefers-reduced-motion:reduce){.wave.go,.msg.new{animation:none}.msg{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>광안리 모래 방명록</h1>
+  <div class="stat">오늘 남긴 발자국 <b id="steps">0</b> · 새겨진 글 <b id="msgs">0</b></div>
+</header>
+
+<div class="beach" id="beach" aria-label="모래사장. 빈 곳을 누르면 발자국이 남습니다">
+  <svg class="bg" viewBox="0 0 1200 620" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1226"/><stop offset="1" stop-color="#1d2b52"/></linearGradient>
+      <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d2b52"/><stop offset="1" stop-color="#34497d"/></linearGradient>
+      <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cdb893"/><stop offset=".25" stop-color="#d9c6a5"/><stop offset="1" stop-color="#c9b28a"/></linearGradient>
+      <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#9b7bff" stop-opacity=".55"/><stop offset="1" stop-color="#9b7bff" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="1200" height="140" fill="url(#sky)"/>
+    <ellipse cx="600" cy="120" rx="560" ry="60" fill="url(#glow)"/>
+    <g stroke="#9b7bff" stroke-width="2" fill="none" opacity=".9">
+      <path d="M0 118 L1200 118"/>
+      <path d="M380 118 L380 52 M820 118 L820 52"/>
+      <path d="M0 110 Q190 60 380 52 Q600 112 820 52 Q1010 60 1200 110"/>
+    </g>
+    <g fill="#e6dcff" id="lights"></g>
+    <rect y="118" width="1200" height="122" fill="url(#sea)"/>
+    <g stroke="#ffffff" stroke-opacity=".18" stroke-width="2" fill="none">
+      <path d="M0 160 Q150 150 300 160 T600 160 T900 160 T1200 160"/>
+      <path d="M0 195 Q150 185 300 195 T600 195 T900 195 T1200 195"/>
+    </g>
+    <path d="M0 236 Q300 222 600 236 T1200 236 L1200 620 L0 620 Z" fill="url(#sand)"/>
+    <path d="M0 236 Q300 222 600 236 T1200 236" stroke="#f4f1ea" stroke-width="5" stroke-opacity=".7" fill="none"/>
+  </svg>
+  <div class="wave" id="wave"></div>
+  <div class="sandzone" id="sandzone"></div>
+  <div class="hint" id="hint">빈 모래를 누르면 발자국, 아래에 쓰면 글이 새겨져요</div>
+</div>
+
+<form class="write" id="form" autocomplete="off">
+  <input id="text" maxlength="30" placeholder="모래에 남길 한 줄 (30자)" aria-label="남길 말" required>
+  <input id="name" maxlength="10" placeholder="이름 (선택)" aria-label="이름">
+  <span class="count" id="count">0/30</span>
+  <button class="primary" type="submit">새기기</button>
+  <button class="ghost" type="button" id="toggle">지난 글 보기</button>
+</form>
+
+<div class="player">
+  <button class="ghost" type="button" id="play">▶ 해변에서 듣기</button>
+  <span class="now" id="now">양희본 0집</span>
+  <audio id="audio" preload="none"></audio>
+</div>
+
+<section class="archive hidden" id="archive">
+  <h2>파도가 지나간 자리</h2>
+  <ol id="list"></ol>
+  <p class="note">모래 위 글씨는 파도가 지나갈수록 옅어지지만, 기록은 여기에 그대로 남아요.</p>
+</section>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,collection,addDoc,query,orderBy,limit,onSnapshot,serverTimestamp,doc,setDoc,increment} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ① Firebase 설정: Firebase Hosting 이 자동으로 주는 /__/firebase/init.json 에서 이 프로젝트(heebonyang)의 실제 값을 읽어 옴
+//    (메인 홈페이지와 같은 방식. 코드에 키를 적어 두지 않아도 되고, 값이 바뀌어도 그대로 맞음)
+const firebaseConfig=await fetch('/__/firebase/init.json').then(r=>r.json());
+
+// ② /guest/music 폴더에 올린 음원 파일 이름과 곡명 (0집)
+const TRACKS=[
+  {file:"01.mp3",name:"사랑은"},
+  {file:"02.mp3",name:"이파겟츄"}
+];
+const MUSIC_DIR='/guest/music/';
+
+const db=getFirestore(initializeApp(firebaseConfig));
+const DAY1=new Date(2026,11,14),H=3600e3;
+const $=id=>document.getElementById(id);
+const sand=$('sandzone');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dayKey=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+let msgs=[],lastId=null;
+
+$('lights').innerHTML=Array.from({length:40},(_,i)=>`<circle cx="${15+i*30}" cy="118" r="2.2"/>`).join('');
+
+const ts=m=>m.at&&m.at.toMillis?m.at.toMillis():Date.now();
+const age=m=>{const h=(Date.now()-ts(m))/H;return h<12?0:h<48?1:2};
+const dayLabel=t=>{const d=Math.floor((t-DAY1)/86400e3)+1;return d>=1?`Day ${d}`:'사전'};
+
+function render(){
+  sand.querySelectorAll('.msg').forEach(e=>e.remove());
+  msgs.slice(0,14).forEach(m=>{
+    const el=document.createElement('div');
+    el.className='msg age'+age(m)+(m.id===lastId?' new':'');
+    el.style.left=(m.x*100)+'%';el.style.top=(m.y*100)+'%';el.style.setProperty('--r',m.r+'deg');
+    el.textContent=m.t;
+    if(m.n){const s=document.createElement('small');s.textContent='— '+m.n;el.appendChild(s)}
+    sand.appendChild(el);
+  });
+  lastId=null;
+  $('msgs').textContent=msgs.length;
+  $('list').innerHTML=msgs.map(m=>{const t=ts(m),d=new Date(t);
+    return `<li><time>${dayLabel(t)} · ${d.getMonth()+1}/${d.getDate()}</time><span>${esc(m.t)}</span><span class="who">${esc(m.n||'익명')}</span></li>`}).join('');
+}
+
+onSnapshot(query(collection(db,'sand'),orderBy('at','desc'),limit(200)),snap=>{
+  snap.docChanges().forEach(c=>{if(c.type==='added'&&!c.doc.metadata.fromCache&&msgs.length)lastId=c.doc.id});
+  msgs=snap.docs.map(d=>({id:d.id,...d.data()}));
+  render();
+});
+onSnapshot(doc(db,'sandSteps',dayKey()),d=>{$('steps').textContent=(d.data()?.count||0).toLocaleString('ko-KR')});
+const step=()=>setDoc(doc(db,'sandSteps',dayKey()),{count:increment(1)},{merge:true}).catch(()=>{});
+
+function spot(){
+  let best=null,bd=-1;
+  for(let k=0;k<30;k++){
+    const x=.14+Math.random()*.72,y=.18+Math.random()*.68;
+    const d=Math.min(1,...msgs.slice(0,14).map(m=>Math.hypot((m.x-x)*1.6,m.y-y)));
+    if(d>bd){bd=d;best={x,y}}
+  }
+  return best;
+}
+
+$('text').addEventListener('input',e=>$('count').textContent=e.target.value.length+'/30');
+let busy=false;
+$('form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const t=$('text').value.trim();if(!t||busy)return;
+  busy=true;const p=spot();
+  try{
+    await addDoc(collection(db,'sand'),{t,n:$('name').value.trim(),at:serverTimestamp(),x:p.x,y:p.y,r:Math.round(Math.random()*8-4)});
+    step();$('text').value='';$('count').textContent='0/30';$('hint').classList.add('hidden');
+  }catch(err){$('hint').textContent='새기지 못했어요. 잠시 뒤 다시 해 주세요';$('hint').classList.remove('hidden')}
+  busy=false;
+});
+
+sand.addEventListener('click',e=>{
+  const r=sand.getBoundingClientRect();
+  const f=document.createElement('div');f.className='foot';
+  f.style.left=(e.clientX-r.left)+'px';f.style.top=(e.clientY-r.top)+'px';
+  f.style.setProperty('--r',(Math.random()*40-20)+'deg');
+  sand.appendChild(f);
+  setTimeout(()=>f.style.opacity=0,4000);setTimeout(()=>f.remove(),7000);
+  step();$('hint').classList.add('hidden');
+});
+
+function wash(){
+  const w=$('wave');w.classList.remove('go');void w.offsetWidth;w.classList.add('go');
+  setTimeout(()=>{sand.querySelectorAll('.foot').forEach(f=>f.remove());render()},2800);
+}
+setInterval(wash,30000);setTimeout(wash,4000);
+
+$('toggle').addEventListener('click',()=>{
+  const a=$('archive');a.classList.toggle('hidden');
+  $('toggle').textContent=a.classList.contains('hidden')?'지난 글 보기':'지난 글 닫기';
+  if(!a.classList.contains('hidden'))a.scrollIntoView({behavior:'smooth'});
+});
+
+const audio=$('audio');let ti=0;
+const load=i=>{ti=(i+TRACKS.length)%TRACKS.length;audio.src=MUSIC_DIR+TRACKS[ti].file;$('now').textContent='♪ '+TRACKS[ti].name};
+load(0);
+$('play').addEventListener('click',()=>{
+  if(audio.paused){audio.play().then(()=>$('play').textContent='❚❚ 멈춤').catch(()=>{})}
+  else{audio.pause();$('play').textContent='▶ 해변에서 듣기'}
+});
+audio.addEventListener('ended',()=>{load(ti+1);audio.play().catch(()=>{})});
+</script>
+</body>
+</html>
