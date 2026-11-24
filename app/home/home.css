@@ -244,7 +244,7 @@
 .hb .letter-again{margin-top:12px;border:1px solid rgba(21,72,158,.35);background:transparent;border-radius:999px;padding:8px 18px;font:inherit;font-size:14px;color:#15489E;cursor:pointer}
 @media (max-width:420px){.hb .letter{padding:24px 18px 18px}.hb .letter-stamp{width:44px;height:52px;top:14px;right:14px}.hb .letter-stamp svg{width:32px;height:32px}}
 .hb .lounge-panel{position:relative}
-.hb .lounge-panel .gb-write{position:absolute;right:clamp(22px,4vw,44px);top:calc(clamp(22px,4vw,44px) + 22px)}
+
 /* 처음 불러오는 동안: 관리자에서 고친 문구가 오기 전 기본 문구가 깜빡이지 않게 자리만 잡고 숨김 */
 .hb [data-cms]{transition:opacity .35s ease}
 .hb.loading [data-cms]{opacity:0;visibility:hidden}
@@ -256,3 +256,15 @@
 .hb .brand-row{display:flex;align-items:center;gap:6px}
 .hb .here{display:inline-flex;align-items:center;gap:5px;font-size:13px;letter-spacing:.06em;color:rgba(220,229,244,.6)}
 .hb .here svg{color:#F5C46B;opacity:.85}
+/* 메인 방명록 칸: 새 방명록(/guest) 최근 글 + 가기 버튼. 모래 위 손글씨 느낌 */
+.hb .gb-lead{margin:6px 0 0;font-size:15px;color:var(--muted)}
+.hb .gb-sand{list-style:none;margin:20px 0 0;padding:18px 20px;border-radius:16px;display:grid;gap:14px;min-height:90px;
+  background:linear-gradient(180deg,#E9DCC2,#D9C6A5);box-shadow:inset 0 2px 6px rgba(80,60,30,.18)}
+.hb .gb-sand:empty{display:none}
+.hb .gb-sand li{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 14px}
+.hb .gb-text{font-family:var(--font-gowun),serif;font-size:18px;font-weight:700;color:#6B5537;text-shadow:0 1px 0 #EFE2C8;overflow-wrap:anywhere}
+.hb .gb-who{margin-left:auto;font-size:13px;color:#7A6648;white-space:nowrap}
+.hb .gb-who small{font-size:12px;opacity:.75;margin-left:4px}
+.hb .gb-heart{color:#E0466A;margin-right:4px}
+.hb .gb-go{display:inline-flex;align-items:center;gap:8px;margin-top:20px;height:46px;padding:0 22px;border-radius:999px;background:#15489E;color:#FEF7ED !important;text-decoration:none;font-weight:700;font-size:15px;transition:background .25s}
+.hb .gb-go:hover{background:#0F3A85}
