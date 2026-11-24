@@ -51,22 +51,20 @@ button{font:16px "Gowun Dodum",sans-serif;min-height:44px;padding:0 18px;border-
 .archive{padding:18px max(5vw,16px) 40px}
 .archive h2{font-size:20px;font-weight:400;margin:0 0 10px}
 .archive ol{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.archive li{display:flex;gap:12px;border-bottom:1px solid #2a3360;padding:8px 0}
-.archive time{color:var(--muted);font-size:14px;flex:none;width:7.5em}
-.archive li{flex-wrap:wrap;align-items:baseline}
-.archive span.body{flex:1 1 8em;overflow-wrap:anywhere}
-.archive span.who{color:var(--muted);font-size:14px;margin-left:auto;flex:none}
-.archive .heart{color:#ff6b8b;margin-right:6px}
-.archive .del{min-height:28px;padding:0 0 0 10px;font-size:13px;background:transparent;color:var(--muted);border:0}
+.archive li{display:grid;grid-template-columns:7em 1fr auto;gap:4px 16px;align-items:baseline;border-bottom:1px solid #2a3360;padding:10px 0}
+.archive .who{grid-column:1;justify-self:start;text-align:left;color:var(--ink);font-size:15px;overflow-wrap:anywhere}
+.archive .body{grid-column:2;overflow-wrap:anywhere}
+.archive .meta{grid-column:3;display:flex;align-items:baseline;gap:10px;color:var(--muted);font-size:13px;white-space:nowrap}
+.archive .heart{color:#ff6b8b;margin-right:5px}
+.archive .del{min-height:28px;padding:0;font-size:13px;background:transparent;color:var(--muted);border:0}
 .archive .del:hover{color:#ff9b9b}
-.archive form.unlock{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;font-size:14px}
+.archive form.unlock{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;font-size:14px}
 .archive form.unlock input{font:15px "Gowun Dodum",sans-serif;padding:6px 12px;border-radius:8px;border:1px solid #3a4675;background:#11172e;color:var(--ink);width:9em;min-height:36px}
 .archive form.unlock button{min-height:36px;padding:0 14px;font-size:14px}
 .archive form.unlock .err{flex:1 1 100%;text-align:right;color:#ff9b9b;font-size:13px}
 .note{font-size:13px;color:var(--muted);margin-top:14px}
 .hidden{display:none}
-.archive time{white-space:nowrap}
-@media(max-width:600px){.archive time{width:auto;flex:1 1 100%;font-size:13px}.beach{height:64vh;min-height:400px}.msg{max-width:calc(100vw - 24px)}#name,#pw{flex:1 1 40%}.write button{flex:1}}
+@media(max-width:600px){.archive li{grid-template-columns:1fr auto}.archive .meta{grid-column:2;grid-row:1}.archive .body{grid-column:1/-1;grid-row:2}.beach{height:64vh;min-height:400px}.msg{max-width:calc(100vw - 24px)}#name,#pw{flex:1 1 40%}.write button{flex:1}}
 @media(prefers-reduced-motion:reduce){.wave.go,.msg.new{animation:none}.msg{transition:none}}
 </style>
 </head>
@@ -160,7 +158,8 @@ $('lights').innerHTML=Array.from({length:40},(_,i)=>`<circle cx="${15+i*30}" cy=
 
 const ts=m=>m.at&&m.at.toMillis?m.at.toMillis():Date.now();
 const age=m=>{const h=(Date.now()-ts(m))/H;return h<12?0:h<48?1:2};
-const dayLabel=t=>{const d=Math.floor((t-DAY1)/86400e3)+1;return d>=1?`Day ${d}`:'사전'};
+// 첫 라이브(12/14)부터는 'Day N · 월/일', 그 전 글은 날짜만
+const dayLabel=t=>{const d=new Date(t),n=Math.floor((t-DAY1)/86400e3)+1,md=`${d.getMonth()+1}/${d.getDate()}`;return n>=1?`Day ${n} · ${md}`:md};
 
 function render(){
   sand.querySelectorAll('.msg').forEach(e=>e.remove());
@@ -180,8 +179,8 @@ function render(){
   });
   lastId=null;
   $('msgs').textContent=msgs.length;
-  $('list').innerHTML=msgs.map(m=>{const t=ts(m),d=new Date(t);
-    return `<li data-id="${esc(m.id)}"><time>${dayLabel(t)} · ${d.getMonth()+1}/${d.getDate()}</time><span class="body">${esc(m.t)}</span><span class="who">${m.liked?'<span class="heart" title="양희본의 하트" aria-label="양희본의 하트">♥</span>':''}${esc(m.n||'익명')}<button type="button" class="del">삭제</button></span></li>`}).join('');
+  $('list').innerHTML=msgs.map(m=>{const t=ts(m);
+    return `<li data-id="${esc(m.id)}"><span class="who">${m.liked?'<span class="heart" title="양희본의 하트" aria-label="양희본의 하트">♥</span>':''}${esc(m.n||'익명')}</span><span class="body">${esc(m.t)}</span><span class="meta"><time>${dayLabel(t)}</time><button type="button" class="del">삭제</button></span></li>`}).join('');
   // 목록을 다시 그려도 열어 둔 비밀번호 칸(입력값·안내 문구)은 그대로 유지
   if(unlock){const li=[...$('list').children].find(x=>x.dataset.id===unlock.id);if(li)li.appendChild(unlock.form)}
 }
