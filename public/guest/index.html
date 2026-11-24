@@ -41,7 +41,7 @@ transform:translateY(-60%);opacity:0;border-radius:0 0 50% 50%/0 0 30px 30px}
 .write{padding:18px max(5vw,16px);display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel)}
 .write input{font:16px "Gowun Dodum",sans-serif;padding:12px 14px;border-radius:10px;border:1px solid #3a4675;background:#11172e;color:var(--ink);min-height:44px}
 .write input:focus,button:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
-#text{flex:1 1 260px}#name{flex:0 1 140px}
+#text{flex:1 1 260px}#name,#pw{flex:0 1 140px}
 button{font:16px "Gowun Dodum",sans-serif;min-height:44px;padding:0 18px;border-radius:10px;border:0;cursor:pointer}
 .primary{background:var(--violet);color:#141a33}
 .ghost{background:transparent;color:var(--ink);border:1px solid #3a4675}
@@ -53,10 +53,19 @@ button{font:16px "Gowun Dodum",sans-serif;min-height:44px;padding:0 18px;border-
 .archive ol{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .archive li{display:flex;gap:12px;border-bottom:1px solid #2a3360;padding:8px 0}
 .archive time{color:var(--muted);font-size:14px;flex:none;width:7.5em}
+.archive li{flex-wrap:wrap;align-items:baseline}
+.archive span.body{flex:1 1 8em;overflow-wrap:anywhere}
 .archive span.who{color:var(--muted);font-size:14px;margin-left:auto;flex:none}
+.archive .del{min-height:28px;padding:0 0 0 10px;font-size:13px;background:transparent;color:var(--muted);border:0}
+.archive .del:hover{color:#ff9b9b}
+.archive form.unlock{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;font-size:14px}
+.archive form.unlock input{font:15px "Gowun Dodum",sans-serif;padding:6px 12px;border-radius:8px;border:1px solid #3a4675;background:#11172e;color:var(--ink);width:9em;min-height:36px}
+.archive form.unlock button{min-height:36px;padding:0 14px;font-size:14px}
+.archive form.unlock .err{flex:1 1 100%;text-align:right;color:#ff9b9b;font-size:13px}
 .note{font-size:13px;color:var(--muted);margin-top:14px}
 .hidden{display:none}
-@media(max-width:600px){.beach{height:64vh;min-height:400px}.msg{max-width:70vw}#name{flex:1 1 100%}.write button{flex:1}}
+.archive time{white-space:nowrap}
+@media(max-width:600px){.archive time{width:auto;flex:1 1 100%;font-size:13px}.beach{height:64vh;min-height:400px}.msg{max-width:calc(100vw - 24px)}#name,#pw{flex:1 1 40%}.write button{flex:1}}
 @media(prefers-reduced-motion:reduce){.wave.go,.msg.new{animation:none}.msg{transition:none}}
 </style>
 </head>
@@ -97,7 +106,8 @@ button{font:16px "Gowun Dodum",sans-serif;min-height:44px;padding:0 18px;border-
 
 <form class="write" id="form" autocomplete="off">
   <input id="text" maxlength="30" placeholder="모래에 남길 한 줄 (30자)" aria-label="남길 말" required>
-  <input id="name" maxlength="10" placeholder="이름 (선택)" aria-label="이름">
+  <input id="name" maxlength="10" placeholder="이름" aria-label="이름" required>
+  <input id="pw" type="password" minlength="4" maxlength="50" placeholder="비밀번호" aria-label="비밀번호 (글을 지울 때 필요, 4자 이상)" title="글을 지울 때 필요해요 (4자 이상)" autocomplete="new-password" required>
   <span class="count" id="count">0/30</span>
   <button class="primary" type="submit">새기기</button>
   <button class="ghost" type="button" id="toggle">지난 글 보기</button>
@@ -117,7 +127,7 @@ button{font:16px "Gowun Dodum",sans-serif;min-height:44px;padding:0 18px;border-
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getFirestore,collection,addDoc,query,orderBy,limit,onSnapshot,serverTimestamp,doc,setDoc,increment} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,query,orderBy,limit,onSnapshot,serverTimestamp,doc,setDoc,increment,writeBatch} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ① Firebase 설정: Firebase Hosting 이 자동으로 주는 /__/firebase/init.json 에서 이 프로젝트(heebonyang)의 실제 값을 읽어 옴
 //    (메인 홈페이지와 같은 방식. 코드에 키를 적어 두지 않아도 되고, 값이 바뀌어도 그대로 맞음)
@@ -136,7 +146,14 @@ const $=id=>document.getElementById(id);
 const sand=$('sandzone');
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dayKey=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
-let msgs=[],lastId=null;
+let msgs=[],lastId=null,unlock=null; // unlock: 지금 열려 있는 삭제용 비밀번호 칸 {id, form}
+
+// 비밀번호: 메인 방명록과 같은 방식. 글 번호와 섞어 SHA-256 해시로만 저장 (sandKeys, 아무도 못 읽음)
+const PW_MIN=4;
+async function hashPw(id,pw){
+  const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(`${id}:${pw}`));
+  return Array.from(new Uint8Array(d),b=>b.toString(16).padStart(2,'0')).join('');
+}
 
 $('lights').innerHTML=Array.from({length:40},(_,i)=>`<circle cx="${15+i*30}" cy="118" r="2.2"/>`).join('');
 
@@ -153,11 +170,19 @@ function render(){
     el.textContent=m.t;
     if(m.n){const s=document.createElement('small');s.textContent='— '+m.n;el.appendChild(s)}
     sand.appendChild(el);
+    // 화면 끝에 걸리면 안쪽으로 밀어 넣음 (휴대폰에서 왼쪽·오른쪽이 잘리지 않게)
+    const sr=sand.getBoundingClientRect(),b=el.getBoundingClientRect(),pad=8;
+    let dx=0;
+    if(b.left<sr.left+pad)dx=sr.left+pad-b.left;
+    else if(b.right>sr.right-pad)dx=sr.right-pad-b.right;
+    if(dx)el.style.left=`calc(${m.x*100}% + ${dx}px)`;
   });
   lastId=null;
   $('msgs').textContent=msgs.length;
   $('list').innerHTML=msgs.map(m=>{const t=ts(m),d=new Date(t);
-    return `<li><time>${dayLabel(t)} · ${d.getMonth()+1}/${d.getDate()}</time><span>${esc(m.t)}</span><span class="who">${esc(m.n||'익명')}</span></li>`}).join('');
+    return `<li data-id="${esc(m.id)}"><time>${dayLabel(t)} · ${d.getMonth()+1}/${d.getDate()}</time><span class="body">${esc(m.t)}</span><span class="who">${esc(m.n||'익명')}<button type="button" class="del">삭제</button></span></li>`}).join('');
+  // 목록을 다시 그려도 열어 둔 비밀번호 칸(입력값·안내 문구)은 그대로 유지
+  if(unlock){const li=[...$('list').children].find(x=>x.dataset.id===unlock.id);if(li)li.appendChild(unlock.form)}
 }
 
 onSnapshot(query(collection(db,'sand'),orderBy('at','desc'),limit(200)),snap=>{
@@ -182,11 +207,17 @@ $('text').addEventListener('input',e=>$('count').textContent=e.target.value.leng
 let busy=false;
 $('form').addEventListener('submit',async e=>{
   e.preventDefault();
-  const t=$('text').value.trim();if(!t||busy)return;
+  const t=$('text').value.trim(),n=$('name').value.trim(),pw=$('pw').value;
+  if(!t||!n||pw.length<PW_MIN||busy)return;
   busy=true;const p=spot();
   try{
-    await addDoc(collection(db,'sand'),{t,n:$('name').value.trim(),at:serverTimestamp(),x:p.x,y:p.y,r:Math.round(Math.random()*8-4)});
-    step();$('text').value='';$('count').textContent='0/30';$('hint').classList.add('hidden');
+    // 글과 비밀번호 해시를 한 번에 저장
+    const ref=doc(collection(db,'sand'));
+    const b=writeBatch(db);
+    b.set(ref,{t,n,at:serverTimestamp(),x:p.x,y:p.y,r:Math.round(Math.random()*8-4)});
+    b.set(doc(db,'sandKeys',ref.id),{hash:await hashPw(ref.id,pw)});
+    await b.commit();
+    step();$('text').value='';$('pw').value='';$('count').textContent='0/30';$('hint').classList.add('hidden');
   }catch(err){$('hint').textContent='새기지 못했어요. 잠시 뒤 다시 해 주세요';$('hint').classList.remove('hidden')}
   busy=false;
 });
@@ -206,6 +237,35 @@ function wash(){
   setTimeout(()=>{sand.querySelectorAll('.foot').forEach(f=>f.remove());render()},2800);
 }
 setInterval(wash,30000);setTimeout(wash,4000);
+
+// 지난 글 삭제: 비밀번호가 맞으면 지워짐 (틀리면 규칙에 막힘)
+$('list').addEventListener('click',e=>{
+  const btn=e.target.closest('.del');if(!btn)return;
+  const li=btn.closest('li');if(li.querySelector('form'))return;
+  if(unlock)unlock.form.remove();
+  const f=document.createElement('form');f.className='unlock';
+  f.innerHTML='<input type="password" placeholder="비밀번호" aria-label="비밀번호" autocomplete="current-password" required><button class="ghost" type="submit">지우기</button><button class="ghost" type="button" data-x>취소</button><span class="err" hidden></span>';
+  li.appendChild(f);f.querySelector('input').focus();
+  unlock={id:li.dataset.id,form:f};
+  f.querySelector('[data-x]').onclick=()=>{f.remove();unlock=null};
+  f.onsubmit=async ev=>{
+    ev.preventDefault();
+    const id=unlock.id,pw=f.querySelector('input').value,err=f.querySelector('.err');
+    err.hidden=true;
+    if(!pw)return;
+    try{
+      const b=writeBatch(db);
+      b.set(doc(db,'sandUnlock',id),{hash:await hashPw(id,pw)});
+      b.delete(doc(db,'sand',id));
+      await b.commit();
+      f.remove();unlock=null;
+    }catch(x){err.textContent=x&&x.code==='permission-denied'?'비밀번호가 맞지 않아요.':'지우지 못했어요. 잠시 뒤 다시 해 주세요.';err.hidden=false}
+  };
+});
+
+// 글씨체를 다 받은 뒤·화면 크기가 바뀐 뒤 다시 그려서 위치 맞춤
+document.fonts&&document.fonts.ready.then(render);
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(render,200)});
 
 $('toggle').addEventListener('click',()=>{
   const a=$('archive');a.classList.toggle('hidden');

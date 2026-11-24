@@ -210,8 +210,8 @@ service cloud.firestore {
     }
 
     // ── 광안리 모래 방명록 (/guest) ─────────────────────────────
-    // 모래에 새긴 글: 누구나 읽고 새길 수 있음. 한 줄 30자, 이름 10자, 위치 x·y 0~1, 기울기 -4~4도.
-    // 한번 새긴 글은 고칠 수 없고, 지우기는 관리자만
+    // 메인 방명록과 같은 방식: 이름 필수, 비밀번호는 브라우저에서 해시로 바꾼 값만 sandKeys 에 저장(아무도 못 읽음).
+    // 모래에 새긴 글: 한 줄 30자, 이름 1~10자, 위치 x·y 0~1, 기울기 -4~4도. 고칠 수 없음
     match /sand/{id} {
       allow read: if true;
       allow create: if request.resource.data.keys().hasOnly(["t", "n", "at", "x", "y", "r"])
@@ -220,13 +220,37 @@ service cloud.firestore {
         && request.resource.data.t.size() > 0
         && request.resource.data.t.size() <= 30
         && request.resource.data.n is string
+        && request.resource.data.n.size() > 0
         && request.resource.data.n.size() <= 10
         && request.resource.data.at == request.time
         && request.resource.data.x is number && request.resource.data.x >= 0 && request.resource.data.x <= 1
         && request.resource.data.y is number && request.resource.data.y >= 0 && request.resource.data.y <= 1
-        && request.resource.data.r is number && request.resource.data.r >= -4 && request.resource.data.r <= 4;
+        && request.resource.data.r is number && request.resource.data.r >= -4 && request.resource.data.r <= 4
+        && existsAfter(/databases/$(database)/documents/sandKeys/$(id));
       allow update: if false;
-      allow delete: if isAdmin();
+      // 작성자 삭제: 같은 묶음 요청으로 sandUnlock 에 남긴 해시가 저장된 해시와 같아야 함. 관리자는 그냥 삭제
+      allow delete: if isAdmin()
+        || getAfter(/databases/$(database)/documents/sandUnlock/$(id)).data.hash
+          == get(/databases/$(database)/documents/sandKeys/$(id)).data.hash;
+    }
+
+    // 글을 새길 때 같은 묶음 요청으로 한 번만 만들 수 있음
+    match /sandKeys/{id} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasOnly(["hash"])
+        && request.resource.data.hash is string
+        && request.resource.data.hash.size() == 64
+        && !exists(/databases/$(database)/documents/sand/$(id))
+        && existsAfter(/databases/$(database)/documents/sand/$(id));
+    }
+
+    // 글을 지울 때 같은 묶음 요청으로만 만들 수 있음 (확인용, 아무도 읽을 수 없음)
+    match /sandUnlock/{id} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasOnly(["hash"])
+        && request.resource.data.hash is string
+        && exists(/databases/$(database)/documents/sand/$(id))
+        && !existsAfter(/databases/$(database)/documents/sand/$(id));
     }
 
     // 오늘 남긴 발자국 수 (날짜별 문서 하나, 예: 2026-12-14). 누구나 읽고, 한 번에 1씩만 늘릴 수 있음
