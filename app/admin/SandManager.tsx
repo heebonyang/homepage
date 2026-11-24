@@ -45,7 +45,7 @@ export default function SandManager({ fb }: { fb: FirebaseServices }) {
   return (
     <div className="mt-8 grid gap-3">
       <p className="text-sm text-stone-500">
-        <a href="/guest/" target="_blank" rel="noopener" className="underline">광안리 모래 방명록</a>에 새겨진 글이에요. 하트를 누르면 사이트에도 하트가 보여요.
+        <a href="/guest/" target="_blank" rel="noopener" className="underline">방명록(/guest)</a>에 새겨진 글이에요. 하트를 누르면 사이트에도 하트가 보여요.
       </p>
       <ul className="divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white">
         {list.length === 0 && <li className="p-5 text-stone-500">아직 새겨진 글이 없어요.</li>}
