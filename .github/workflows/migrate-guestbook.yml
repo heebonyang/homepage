@@ -1,0 +1,30 @@
+# 메인 방명록 글을 광안리 모래 방명록으로 옮기기 (손으로 한 번 실행)
+# Actions > 'Migrate guestbook → sand' > Run workflow. dry_run 을 true 로 두면 개수만 세고 옮기지 않음
+name: Migrate guestbook → sand
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "true 면 미리보기만 (옮기지 않음)"
+        required: false
+        default: "false"
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install firebase-admin
+        run: npm i --no-save --no-package-lock firebase-admin@13
+      - name: Migrate
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
+        run: |
+          trap 'rm -f "$RUNNER_TEMP/sa.json"' EXIT
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/sa.json"
+          GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json" node tools/migrate/guestbook-to-sand.mjs

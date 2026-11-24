@@ -227,7 +227,10 @@ service cloud.firestore {
         && request.resource.data.y is number && request.resource.data.y >= 0 && request.resource.data.y <= 1
         && request.resource.data.r is number && request.resource.data.r >= -4 && request.resource.data.r <= 4
         && existsAfter(/databases/$(database)/documents/sandKeys/$(id));
-      allow update: if false;
+      // 하트: 홈페이지 주인(관리자)만, liked 칸만 바꿀 수 있음
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["liked"])
+        && request.resource.data.liked is bool;
       // 작성자 삭제: 같은 묶음 요청으로 sandUnlock 에 남긴 해시가 저장된 해시와 같아야 함. 관리자는 그냥 삭제
       allow delete: if isAdmin()
         || getAfter(/databases/$(database)/documents/sandUnlock/$(id)).data.hash

@@ -6,15 +6,16 @@ import { deleteDoc, doc, setDoc } from "firebase/firestore/lite";
 import { getFirebase, type FirebaseServices } from "../firebase";
 import LiveLettersManager from "./LiveLettersManager";
 import OrdersManager from "./OrdersManager";
+import SandManager from "./SandManager";
 import AlbumPageEditor from "./AlbumPageEditor";
 import TicketsManager from "./TicketsManager";
 import { formatDate, HeartIcon, loadGuestbook, type GuestbookEntry } from "../Guestbook";
 import { clickKey, loadClicks, thisMonth } from "../linkClicks";
 import { loadSettings, SETTINGS_DOC, type MusicLink } from "../siteSettings";
 
-type Section = "links" | "album" | "albumPage" | "orders" | "tickets" | "letters" | "guestbook";
+type Section = "links" | "album" | "albumPage" | "orders" | "tickets" | "letters" | "sand" | "guestbook";
 
-const SECTION_LABELS: Record<Section, string> = { links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", letters: "사연 · 신청곡 · 레파토리", guestbook: "방명록" };
+const SECTION_LABELS: Record<Section, string> = { links: "링크", album: "0집 CD", albumPage: "홈페이지 문구", orders: "0집 주문", tickets: "공연 예매", letters: "사연 · 신청곡 · 레파토리", sand: "모래 방명록", guestbook: "방명록" };
 
 function errorMessage(e: unknown) {
   const code = (e as { code?: string })?.code;
@@ -480,6 +481,8 @@ function Dashboard({ fb }: { fb: FirebaseServices }) {
       {section === "orders" && <OrdersManager fb={fb} />}
 
       {section === "letters" && <LiveLettersManager fb={fb} />}
+
+      {section === "sand" && <SandManager fb={fb} />}
 
       {section === "tickets" && <TicketsManager fb={fb} />}
 
