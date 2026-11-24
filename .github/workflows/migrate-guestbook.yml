@@ -1,8 +1,13 @@
 # 메인 방명록 글을 광안리 모래 방명록으로 옮기기 (손으로 한 번 실행)
-# Actions > 'Migrate guestbook → sand' > Run workflow. dry_run 을 true 로 두면 개수만 세고 옮기지 않음
+# Actions > 'Migrate guestbook → sand' > Run workflow 로 손으로 실행하거나, tools/migrate/run.txt 를 바꿔 올리면 실행
+# dry_run 을 true 로 두면 개수만 세고 옮기지 않음
 name: Migrate guestbook → sand
 
 on:
+  # tools/migrate/run.txt 를 바꿔 올리면 자동으로 한 번 실행 (이미 옮긴 글은 건너뛰니 여러 번 돌려도 안전)
+  push:
+    branches: [main]
+    paths: [tools/migrate/run.txt]
   workflow_dispatch:
     inputs:
       dry_run:
